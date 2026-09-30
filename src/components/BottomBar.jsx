@@ -5,54 +5,55 @@ export default function BottomBar({ activeSection, onNavigate }) {
   const [showServicesDropdown, setShowServicesDropdown] = useState(false);
 
   const navItems = [
-    { id: 'home', label: 'Home', hasDot: true },
-    { id: 'services', label: 'Services +', hasDropdown: true },
-    { id: 'industries', label: 'Industries' },
-    { id: 'about', label: 'Process' },
+    { id: 'home', label: '01. HOME' },
+    { id: 'services', label: '02. SERVICES +', hasDropdown: true },
+    { id: 'industries', label: '03. INDUSTRIES' },
+    { id: 'about', label: '04. PROCESS' },
   ];
 
   return (
-    <div className="fixed bottom-6 left-0 right-0 z-40 px-6 sm:px-10 md:px-14 pointer-events-none">
+    <div className="fixed bottom-6 left-0 right-0 z-40 px-4 sm:px-8 md:px-12 pointer-events-none">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        
+
         {/* Bottom Left: Scroll to explore */}
         <button
           onClick={() => onNavigate('services')}
-          className="pointer-events-auto group flex items-center gap-2 text-xs sm:text-sm text-white/60 hover:text-white transition-colors duration-300 select-none"
+          data-cursor="SCROLL"
+          className="pointer-events-auto group hidden sm:flex items-center gap-3 bg-[#0B1F16] border-2 border-[#FFFFFF] shadow-brutal-white px-3 py-1.5 text-xs text-white hover:bg-[#2E8B3C] transition-colors select-none"
         >
-          <div className="w-5 h-5 rounded-full border border-white/20 group-hover:border-[#70B85A] flex items-center justify-center transition-colors">
-            <ArrowDown className="w-3 h-3 text-[#70B85A] animate-bounce" />
+          <div className="w-4 h-4 bg-[#38E54D] text-[#0B1F16] flex items-center justify-center font-bold">
+            <ArrowDown className="w-3 h-3 stroke-[3]" />
           </div>
-          <span className="font-mono-tag tracking-wider uppercase text-[11px] text-[#A8F5B8]/80 group-hover:text-white">
-            Explore Capabilities
+          <span className="font-mono text-[11px] tracking-wider uppercase text-[#38E54D] group-hover:text-white font-bold">
+            EXPLORE WORK
           </span>
         </button>
 
-        {/* Bottom Center: Floating Frosted Pill Dock */}
-        <div className="pointer-events-auto relative">
-          
+        {/* Bottom Center: Brutalist Square Dock */}
+        <div className="pointer-events-auto relative mx-auto sm:mx-0">
+
           {/* Services Quick Dropdown Menu */}
           {showServicesDropdown && (
-            <div 
+            <div
               onMouseLeave={() => setShowServicesDropdown(false)}
-              className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-72 p-3 rounded-2xl bg-[#091f14]/95 backdrop-blur-xl border border-[#70B85A]/30 shadow-2xl shadow-black/80 animate-in fade-in slide-in-from-bottom-2 duration-200"
+              className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 w-64 sm:w-80 p-3 bg-[#0B1F16] border-3 border-[#FFFFFF] shadow-brutal-white animate-in fade-in slide-in-from-bottom-2 duration-150"
             >
-              <div className="text-[10px] font-mono-tag text-[#70B85A] uppercase tracking-wider px-2 py-1 font-semibold">
-                Agency Capabilities
+              <div className="text-[10px] font-mono text-[#38E54D] uppercase tracking-widest px-2 py-1 font-bold border-b border-[#38E54D]/30 mb-2">
+                AGENCY CAPABILITIES
               </div>
-              <div className="space-y-1 mt-1">
+              <div className="space-y-1">
                 <button
                   onClick={() => {
                     onNavigate('services');
                     setShowServicesDropdown(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-white/90 hover:text-white hover:bg-white/10 transition flex items-center justify-between"
+                  className="w-full text-left p-2 bg-[#050d08] hover:bg-[#2E8B3C] border border-[#70B85A]/40 text-white transition flex items-center justify-between"
                 >
                   <div>
-                    <div className="font-semibold text-white">Web Development</div>
-                    <div className="text-[10px] text-white/50">Portfolios, Platforms & Web Apps</div>
+                    <div className="font-display text-sm tracking-wide">WEB DEVELOPMENT</div>
+                    <div className="text-[10px] font-mono text-white/70">Portfolios, Platforms & Web Apps</div>
                   </div>
-                  <span className="text-[#38E54D]">→</span>
+                  <span className="font-bold text-[#38E54D]">→</span>
                 </button>
 
                 <button
@@ -60,13 +61,13 @@ export default function BottomBar({ activeSection, onNavigate }) {
                     onNavigate('services');
                     setShowServicesDropdown(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-white/90 hover:text-white hover:bg-white/10 transition flex items-center justify-between"
+                  className="w-full text-left p-2 bg-[#050d08] hover:bg-[#2E8B3C] border border-[#70B85A]/40 text-white transition flex items-center justify-between"
                 >
                   <div>
-                    <div className="font-semibold text-white">Monthly Social Media</div>
-                    <div className="text-[10px] text-white/50">Strategy, Creatives & Copywriting</div>
+                    <div className="font-display text-sm tracking-wide">MONTHLY SOCIAL MEDIA</div>
+                    <div className="text-[10px] font-mono text-white/70">Strategy, Creatives & Growth</div>
                   </div>
-                  <span className="text-[#38E54D]">→</span>
+                  <span className="font-bold text-[#38E54D]">→</span>
                 </button>
 
                 <button
@@ -74,20 +75,20 @@ export default function BottomBar({ activeSection, onNavigate }) {
                     onNavigate('services');
                     setShowServicesDropdown(false);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs text-[#DAAF37] hover:bg-[#DAAF37]/15 transition flex items-center justify-between"
+                  className="w-full text-left p-2 bg-[#DAAF37] hover:bg-[#e0b73c] text-[#0B1F16] border-2 border-[#0B1F16] transition flex items-center justify-between"
                 >
                   <div>
-                    <div className="font-semibold text-[#DAAF37]">Unified Digital Combo</div>
-                    <div className="text-[10px] text-[#DAAF37]/80">Full website + ongoing social growth</div>
+                    <div className="font-display text-sm tracking-wide text-[#0B1F16]">UNIFIED DIGITAL COMBO</div>
+                    <div className="text-[10px] font-mono text-[#0B1F16]/90 font-semibold">Complete Web + Social Growth</div>
                   </div>
-                  <span className="text-[#DAAF37]">★</span>
+                  <span className="font-bold text-[#0B1F16]">★</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Capsule Dock */}
-          <nav className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/[0.07] hover:bg-white/[0.1] backdrop-blur-xl border border-white/15 shadow-[0_10px_30px_rgba(0,0,0,0.6)] transition-all">
+          {/* Neo-Brutalist Dock Nav */}
+          <nav className="flex items-center gap-1 bg-[#0B1F16] border-3 border-[#FFFFFF] shadow-brutal-white p-1">
             {navItems.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -102,16 +103,13 @@ export default function BottomBar({ activeSection, onNavigate }) {
                   onMouseEnter={() => {
                     if (item.hasDropdown) setShowServicesDropdown(true);
                   }}
-                  className={`relative px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium tracking-wide transition-all duration-300 flex items-center gap-1.5 ${
+                  className={`px-3 sm:px-4 py-1.5 font-mono text-[11px] sm:text-xs font-bold uppercase transition-all duration-100 ${
                     isActive
-                      ? 'text-white bg-white/15 shadow-sm font-semibold'
-                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                      ? 'bg-[#38E54D] text-[#0B1F16] shadow-brutal-sm'
+                      : 'text-white hover:bg-white/10'
                   }`}
                 >
-                  {item.hasDot && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#38E54D] inline-block shadow-[0_0_8px_#38E54D]" />
-                  )}
-                  <span>{item.label}</span>
+                  {item.label}
                 </button>
               );
             })}
@@ -119,13 +117,10 @@ export default function BottomBar({ activeSection, onNavigate }) {
         </div>
 
         {/* Bottom Right: Live Status Badge */}
-        <div className="hidden lg:flex items-center gap-2 pointer-events-auto px-3.5 py-1.5 rounded-full bg-[#0b1f16]/80 backdrop-blur-md border border-[#2E8B3C]/40 text-xs font-mono-tag">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#38E54D] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#38E54D]"></span>
-          </span>
-          <span className="text-[#A8F5B8] tracking-wider text-[11px]">
-            ACCEPTING Q2/Q3 PROJECTS
+        <div className="hidden lg:flex items-center gap-2 pointer-events-auto px-3.5 py-2 bg-[#0B1F16] border-2 border-[#DAAF37] shadow-brutal-gold text-xs font-mono">
+          <span className="w-2 h-2 bg-[#38E54D] animate-ping" />
+          <span className="text-[#DAAF37] tracking-wider text-[11px] font-bold">
+            AVAILABLE FOR Q2/Q3 BUILDS
           </span>
         </div>
 

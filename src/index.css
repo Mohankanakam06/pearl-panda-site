@@ -1,24 +1,42 @@
 @import "tailwindcss";
 
+@theme {
+  --color-white: #FFFFFF;
+  --color-ink: #0B1F16;
+  --color-primary: #2E8B3C;
+  --color-light: #70B85A;
+  --color-gold: #DAAF37;
+  --color-dark-bg: #050d08;
+  --color-cream: #F8F9F5;
+
+  --font-display: 'Anton', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
 @layer base {
   :root {
-    --color-bg-deep: #050d08;
-    --color-green-dark: #0B1F16;
-    --color-green-primary: #2E8B3C;
-    --color-green-light: #70B85A;
-    --color-green-neon: #38E54D;
+    --color-ink: #0B1F16;
+    --color-primary: #2E8B3C;
+    --color-light: #70B85A;
     --color-gold: #DAAF37;
   }
 
+  * {
+    border-radius: 0 !important; /* Neo-Brutalist rule: no rounded corners */
+  }
+
   body {
-    background-color: var(--color-bg-deep);
+    background-color: #0B1F16;
     color: #FFFFFF;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
     overflow-x: hidden;
   }
 
-  h1, h2, h3, .font-display {
-    font-family: 'Syne', sans-serif;
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Anton', sans-serif;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   .font-mono-tag {
@@ -26,54 +44,184 @@
   }
 }
 
-/* Glassmorphism & custom utility classes */
-.glass-panel {
-  background: rgba(11, 31, 22, 0.55);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(112, 184, 90, 0.15);
+/* Neo-Brutalist Shadow & Border Utilities */
+.border-3 {
+  border-width: 3px;
+}
+.border-4 {
+  border-width: 4px;
+}
+.border-b-3 {
+  border-bottom-width: 3px;
+}
+.border-t-3 {
+  border-top-width: 3px;
 }
 
-.glass-pill {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.shadow-brutal {
+  box-shadow: 4px 4px 0px #0B1F16;
 }
 
-.glass-pill:hover {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(112, 184, 90, 0.35);
+.shadow-brutal-sm {
+  box-shadow: 2px 2px 0px #0B1F16;
 }
 
-/* Volumetric light beam animation */
-@keyframes beamPulse {
-  0%, 100% { opacity: 0.85; transform: scaleX(1); }
-  50% { opacity: 1; transform: scaleX(1.05); }
+.shadow-brutal-lg {
+  box-shadow: 6px 6px 0px #0B1F16;
 }
 
-.volumetric-beam {
-  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(46, 139, 60, 0.35) 0%, rgba(11, 31, 22, 0.15) 50%, transparent 80%);
-  animation: beamPulse 8s ease-in-out infinite;
-  pointer-events: none;
+.shadow-brutal-white {
+  box-shadow: 4px 4px 0px #FFFFFF;
 }
 
-/* Custom scrollbar */
+.shadow-brutal-white-lg {
+  box-shadow: 6px 6px 0px #FFFFFF;
+}
+
+.shadow-brutal-green {
+  box-shadow: 4px 4px 0px #2E8B3C;
+}
+
+.shadow-brutal-light {
+  box-shadow: 4px 4px 0px #70B85A;
+}
+
+.shadow-brutal-gold {
+  box-shadow: 4px 4px 0px #DAAF37;
+}
+
+.shadow-brutal-gold-lg {
+  box-shadow: 6px 6px 0px #DAAF37;
+}
+
+/* Brutalist Button & Card Hover/Active States */
+.btn-brutal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Anton', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  border: 3px solid #0B1F16;
+  box-shadow: 4px 4px 0px #0B1F16;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+  user-select: none;
+}
+
+.btn-brutal:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #0B1F16;
+}
+
+.btn-brutal:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #0B1F16;
+}
+
+/* Light / Inverted variant on dark backgrounds */
+.btn-brutal-dark {
+  border: 3px solid #FFFFFF;
+  box-shadow: 4px 4px 0px #FFFFFF;
+}
+
+.btn-brutal-dark:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #FFFFFF;
+}
+
+.btn-brutal-dark:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #FFFFFF;
+}
+
+/* Gold variant */
+.btn-brutal-gold {
+  border: 3px solid #0B1F16;
+  background-color: #DAAF37;
+  color: #0B1F16;
+  box-shadow: 4px 4px 0px #0B1F16;
+}
+
+.btn-brutal-gold:hover {
+  background-color: #f1c750;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #0B1F16;
+}
+
+.btn-brutal-gold:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px #0B1F16;
+}
+
+/* Brutalist Card */
+.card-brutal {
+  border: 3px solid #0B1F16;
+  box-shadow: 6px 6px 0px #0B1F16;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-brutal:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px #0B1F16;
+}
+
+.card-brutal-white {
+  border: 3px solid #FFFFFF;
+  box-shadow: 6px 6px 0px #FFFFFF;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-brutal-white:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px #FFFFFF;
+}
+
+/* Marquee continuous scroll */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 24s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 24s linear infinite;
+}
+
+.animate-marquee:hover, .animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
+/* Custom Scrollbar - Brutalist Square */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #050d08;
+  background: #0B1F16;
+  border-left: 2px solid #2E8B3C;
 }
 ::-webkit-scrollbar-thumb {
-  background: #184225;
-  border-radius: 3px;
+  background: #2E8B3C;
+  border: 2px solid #0B1F16;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2E8B3C;
+  background: #70B85A;
 }
 
-/* Lenis smooth scrolling support */
+/* Lenis Smooth Scroll Configuration */
 html.lenis, html.lenis body {
   height: auto;
 }
@@ -92,4 +240,14 @@ html.lenis, html.lenis body {
 
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Send, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function ContactModal({ isOpen, onClose, initialService = '' }) {
   if (!isOpen) return null;
@@ -39,72 +39,73 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+      <div
+        className="fixed inset-0 bg-black/85 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-2xl bg-[#08180e] border border-[#2E8B3C]/50 rounded-3xl p-6 sm:p-10 shadow-2xl shadow-black/90 z-10 my-8">
-        
+      <div className="relative w-full max-w-2xl bg-[#0B1F16] border-4 border-[#FFFFFF] shadow-brutal-white-lg p-6 sm:p-10 z-10 my-8">
+
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition"
+          data-cursor="CLOSE"
+          className="absolute top-4 right-4 p-2 bg-[#050d08] border-2 border-white hover:bg-[#2E8B3C] text-white transition"
           aria-label="Close dialog"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5 stroke-[3]" />
         </button>
 
         {submitted ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-[#38E54D]/20 border border-[#38E54D] text-[#38E54D] flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-8 h-8" />
+          <div className="text-center py-10">
+            <div className="w-16 h-16 bg-[#38E54D] border-3 border-[#0B1F16] shadow-brutal text-[#0B1F16] flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10 stroke-[3]" />
             </div>
-            <h3 className="font-display text-3xl font-bold text-white mb-2">
-              Inquiry Received!
+            <h3 className="font-display text-3xl sm:text-4xl font-bold text-white mb-3">
+              INQUIRY TRANSMITTED!
             </h3>
-            <p className="text-sm text-white/70 max-w-md mx-auto mb-6 leading-relaxed">
-              Thank you for reaching out to Pearl Panda. We will review your project requirements and share a tailored scope, timeline, and proposal within 24 hours.
+            <p className="text-sm text-white/80 max-w-md mx-auto mb-6 leading-relaxed font-body">
+              Thank you for reaching out to Pearl Panda. We will review your project parameters and dispatch a tailored scope, timeline, and proposal within 24 hours.
             </p>
             <button
               onClick={onClose}
-              className="px-6 py-2.5 rounded-full bg-[#38E54D] text-[#050e08] font-bold text-xs uppercase tracking-wider hover:bg-[#48f060] transition"
+              className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-8 py-3 text-sm font-bold"
             >
-              Back to Website
+              RETURN TO STUDIO
             </button>
           </div>
         ) : (
           <div>
             {/* Header */}
             <div className="mb-6">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#DAAF37]/15 border border-[#DAAF37]/40 text-[#DAAF37] font-mono-tag text-[10px] uppercase tracking-widest font-semibold mb-3">
-                <Sparkles className="w-3 h-3" />
-                PROJECT INQUIRY • TAILORED PROPOSAL
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#DAAF37] border-2 border-[#0B1F16] shadow-brutal-sm text-[#0B1F16] font-mono text-[10px] uppercase tracking-widest font-bold mb-3">
+                <Sparkles className="w-3.5 h-3.5" />
+                PROJECT INQUIRY // TAILORED PROPOSAL
               </div>
-              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white">
-                Let's Build Something Exceptional
+              <h2 className="font-display text-3xl sm:text-4xl font-bold text-white">
+                LET'S BUILD SOMETHING EXCEPTIONAL
               </h2>
-              <p className="text-xs sm:text-sm text-white/60 mt-1">
-                Tell us about your brand vision. We'll respond with a customized roadmap and investment scope.
+              <p className="text-xs sm:text-sm text-white/70 mt-1 font-body">
+                Specify your technical requirements. We'll respond with an engineered roadmap and investment scope.
               </p>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              
+
               {/* Select Service Type */}
               <div>
-                <label className="block text-xs font-mono-tag uppercase tracking-wider text-[#A8F5B8] mb-1.5 font-medium">
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#70B85A] mb-1 font-bold">
                   Service / Architecture Needed
                 </label>
                 <select
                   value={serviceType}
                   onChange={(e) => setServiceType(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm focus:border-[#38E54D] focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-[#050d08] border-2 border-white/40 focus:border-[#38E54D] text-white text-xs sm:text-sm focus:outline-none"
                 >
                   {serviceOptions.map((opt) => (
-                    <option key={opt} value={opt} className="bg-[#08180e] text-white">
+                    <option key={opt} value={opt} className="bg-[#0B1F16] text-white">
                       {opt}
                     </option>
                   ))}
@@ -113,16 +114,16 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
 
               {/* Select Industry */}
               <div>
-                <label className="block text-xs font-mono-tag uppercase tracking-wider text-[#A8F5B8] mb-1.5 font-medium">
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#70B85A] mb-1 font-bold">
                   Your Industry Sector
                 </label>
                 <select
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm focus:border-[#38E54D] focus:outline-none"
+                  className="w-full px-4 py-2.5 bg-[#050d08] border-2 border-white/40 focus:border-[#38E54D] text-white text-xs sm:text-sm focus:outline-none"
                 >
                   {industriesList.map((ind) => (
-                    <option key={ind} value={ind} className="bg-[#08180e] text-white">
+                    <option key={ind} value={ind} className="bg-[#0B1F16] text-white">
                       {ind}
                     </option>
                   ))}
@@ -132,7 +133,7 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
               {/* Name & Email Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono-tag uppercase tracking-wider text-[#A8F5B8] mb-1.5 font-medium">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#70B85A] mb-1 font-bold">
                     Your Name
                   </label>
                   <input
@@ -141,11 +142,11 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
                     placeholder="Alex Morgan"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm placeholder:text-white/30 focus:border-[#38E54D] focus:outline-none"
+                    className="w-full px-4 py-2.5 bg-[#050d08] border-2 border-white/40 focus:border-[#38E54D] text-white text-xs sm:text-sm placeholder:text-white/30 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-mono-tag uppercase tracking-wider text-[#A8F5B8] mb-1.5 font-medium">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#70B85A] mb-1 font-bold">
                     Email Address
                   </label>
                   <input
@@ -154,14 +155,14 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
                     placeholder="alex@company.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm placeholder:text-white/30 focus:border-[#38E54D] focus:outline-none"
+                    className="w-full px-4 py-2.5 bg-[#050d08] border-2 border-white/40 focus:border-[#38E54D] text-white text-xs sm:text-sm placeholder:text-white/30 focus:outline-none"
                   />
                 </div>
               </div>
 
               {/* Message */}
               <div>
-                <label className="block text-xs font-mono-tag uppercase tracking-wider text-[#A8F5B8] mb-1.5 font-medium">
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#70B85A] mb-1 font-bold">
                   Project Vision & Timeline
                 </label>
                 <textarea
@@ -169,7 +170,7 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
                   placeholder="Share a brief overview of your business goals, target launch date, or desired features..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-xs sm:text-sm placeholder:text-white/30 focus:border-[#38E54D] focus:outline-none resize-none"
+                  className="w-full px-4 py-2.5 bg-[#050d08] border-2 border-white/40 focus:border-[#38E54D] text-white text-xs sm:text-sm placeholder:text-white/30 focus:outline-none resize-none"
                 />
               </div>
 
@@ -177,17 +178,16 @@ export default function ContactModal({ isOpen, onClose, initialService = '' }) {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3.5 px-6 rounded-2xl bg-[#38E54D] hover:bg-[#48f060] text-[#050e08] font-display font-bold text-sm tracking-wide shadow-lg shadow-[#38E54D]/30 transition-all hover:scale-[1.01] flex items-center justify-center gap-2"
+                  data-cursor="SUBMIT"
+                  className="btn-brutal w-full py-3.5 px-6 bg-[#38E54D] text-[#0B1F16] font-display font-bold text-base hover:bg-[#48f060] flex items-center justify-center gap-2 border-3 border-[#0B1F16] shadow-brutal"
                 >
-                  <span>Request Custom Proposal & Scope</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>REQUEST CUSTOM PROPOSAL & SCOPE</span>
+                  <ArrowRight className="w-5 h-5 stroke-[3]" />
                 </button>
               </div>
 
-              <div className="text-center pt-1">
-                <span className="text-[11px] font-mono-tag text-white/40">
-                  Clean • Friendly • Modern • Memorable
-                </span>
+              <div className="text-center pt-1 font-mono text-[10px] text-white/50 tracking-wider uppercase">
+                GUARANTEED RESPONSE WITHIN 24 BUSINESS HOURS // ZERO OBLIGATION
               </div>
             </form>
           </div>

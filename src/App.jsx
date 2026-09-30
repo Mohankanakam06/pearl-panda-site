@@ -12,10 +12,13 @@ import AboutSection from './components/AboutSection';
 import Footer from './components/Footer';
 import ContactModal from './components/ContactModal';
 import BottomBar from './components/BottomBar';
+import CustomCursor from './components/CustomCursor';
+import Preloader from './components/Preloader';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [selectedService, setSelectedService] = useState('');
   const [activeSection, setActiveSection] = useState('home');
@@ -86,12 +89,18 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen bg-[#050d08] text-white selection:bg-[#38E54D] selection:text-[#050d08]">
+      {/* Interactive Custom Cursor */}
+      <CustomCursor />
+
+      {/* Interactive Neo-Brutalist Preloader */}
+      {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+
       {/* Top Navbar */}
       <Navbar onOpenContact={() => handleOpenContact()} />
 
-      {/* Hero Section (Preserved exactly as requested) */}
-      <Hero 
-        onOpenContact={() => handleOpenContact()} 
+      {/* Hero Section */}
+      <Hero
+        onOpenContact={() => handleOpenContact()}
         onNavigate={handleNavigate}
       />
 
@@ -108,21 +117,21 @@ export default function App() {
       <AboutSection onOpenContact={handleOpenContact} />
 
       {/* Footer */}
-      <Footer 
-        onOpenContact={() => handleOpenContact()} 
-        onNavigate={handleNavigate} 
+      <Footer
+        onOpenContact={() => handleOpenContact()}
+        onNavigate={handleNavigate}
       />
 
       {/* Bottom Floating Navigation Dock */}
-      <BottomBar 
-        activeSection={activeSection} 
-        onNavigate={handleNavigate} 
+      <BottomBar
+        activeSection={activeSection}
+        onNavigate={handleNavigate}
       />
 
       {/* Contact & Custom Proposal Modal */}
-      <ContactModal 
-        isOpen={isContactOpen} 
-        onClose={() => setIsContactOpen(false)} 
+      <ContactModal
+        isOpen={isContactOpen}
+        onClose={() => setIsContactOpen(false)}
         initialService={selectedService}
       />
     </div>
