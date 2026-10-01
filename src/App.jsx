@@ -8,6 +8,7 @@ import Hero from './components/Hero';
 import HighlightProjects from './components/HighlightProjects';
 import ClientMarquee from './components/ClientMarquee';
 import NumberedServices from './components/NumberedServices';
+import IndustriesSection from './components/IndustriesSection';
 import AboutSection from './components/AboutSection';
 import SplitCTA from './components/SplitCTA';
 import Footer from './components/Footer';
@@ -109,10 +110,13 @@ export default function App() {
       const scrollPos = window.scrollY + 250;
       const projectsEl = document.getElementById('projects');
       const servicesEl = document.getElementById('services');
+      const industriesEl = document.getElementById('industries');
       const aboutEl = document.getElementById('about');
 
       if (aboutEl && scrollPos >= aboutEl.offsetTop) {
         setActiveSection('about');
+      } else if (industriesEl && scrollPos >= industriesEl.offsetTop) {
+        setActiveSection('industries');
       } else if (servicesEl && scrollPos >= servicesEl.offsetTop) {
         setActiveSection('services');
       } else if (projectsEl && scrollPos >= projectsEl.offsetTop) {
@@ -140,48 +144,53 @@ export default function App() {
       {/* 4. Fixed Top Navbar */}
       <Navbar onOpenContact={() => handleOpenContact('General Inquiry')} />
 
-      {/* 5. Section 1: Hero (Full-viewport video background, masked reveals, audio toggle, stacking transition) */}
+      {/* 5. PRD Section: Home (Full-viewport video background, masked reveals, audio toggle, stacking transition) */}
       <Hero
         onOpenContact={handleOpenContact}
         onNavigate={handleNavigate}
       />
 
-      {/* 6. Section 2: Highlight Projects (Full-bleed pinned slider, clip-path mask wipes, counter 01/04, prev/next) */}
+      {/* 6. PRD Section: Work / Portfolio (Full-bleed pinned slider, clip-path mask wipes, counter 01/04, prev/next) */}
       <HighlightProjects
         onOpenContact={handleOpenContact}
       />
 
-      {/* 7. Section 3: Client Logo Marquee (Velocity-coupled speed & direction-reversal on scroll up, #FFFFFF background) */}
+      {/* 7. PRD Section: Industries Marquee (Velocity-coupled speed & direction-reversal on scroll up, #FFFFFF background) */}
       <ClientMarquee />
 
-      {/* 8. Section 4: Numbered Services 01-04 (Sticky stacking cards, clip-path image reveals, hover expansion, #0B1F16 background) */}
+      {/* 8. PRD Section: Services & Website Types (Sticky stacking cards, clip-path image reveals, hover expansion, #0B1F16 background) */}
       <NumberedServices
         onOpenContact={handleOpenContact}
       />
 
-      {/* 9. Agency Process & Standards (#2E8B3C emerald background alternating rhythm) */}
+      {/* 9. PRD Section: Industries We Serve (#FFFFFF background with 6 industries deep-dive & social media examples) */}
+      <IndustriesSection
+        onOpenContact={handleOpenContact}
+      />
+
+      {/* 10. PRD Section: How We Work & Brutalism (#2E8B3C emerald background alternating rhythm) */}
       <AboutSection
         onOpenContact={handleOpenContact}
       />
 
-      {/* 10. Section 5: Split CTA Quote / Contact (Expanding halves on hover, brutalist hard-shadow buttons) */}
+      {/* 11. PRD Section: Package & Pricing / Split CTA (Website Development vs. Monthly Social / Combo, official banner) */}
       <SplitCTA
         onOpenContact={handleOpenContact}
       />
 
-      {/* 11. Footer */}
+      {/* 12. Footer */}
       <Footer
         onOpenContact={() => handleOpenContact('Footer Inquiry')}
         onNavigate={handleNavigate}
       />
 
-      {/* 12. Bottom Floating Navigation Dock */}
+      {/* 13. Bottom Floating Navigation Dock */}
       <BottomBar
         activeSection={activeSection}
         onNavigate={handleNavigate}
       />
 
-      {/* 13. Contact & Custom Proposal Modal */}
+      {/* 14. Contact & Custom Proposal Modal */}
       <ContactModal
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}

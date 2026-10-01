@@ -4,21 +4,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const clientLogos = [
-  { name: 'VELOX ARCHITECTURE', tag: 'ZURICH' },
-  { name: 'KINETIC FORM', tag: 'TOKYO' },
-  { name: 'NEO-LUMEN ENERGY', tag: 'STOCKHOLM' },
-  { name: 'CHRONO LABS', tag: 'LONDON' },
-  { name: 'AETHEL CAPITAL', tag: 'NEW YORK' },
-  { name: 'VORTEX MEDIA', tag: 'BERLIN' },
-  { name: 'CYBERNETIC CORP', tag: 'HELSINKI' },
-  { name: 'SOLIS VENTURES', tag: 'SINGAPORE' },
+const industriesList = [
+  { name: 'CAFÉS & RESTAURANTS', tag: 'HOSPITALITY' },
+  { name: 'EVENTS & EVENT COMPANIES', tag: 'EXPERIENCES' },
+  { name: 'REAL ESTATE', tag: 'DEVELOPMENT' },
+  { name: 'RETAIL & LOCAL BUSINESSES', tag: 'COMMERCE' },
+  { name: 'CREATORS & PERSONAL BRANDS', tag: 'PROFILE BUILDING' },
+  { name: 'STARTUPS & SMALL BUSINESSES', tag: 'LAUNCH & GROWTH' },
 ];
 
 export default function ClientMarquee() {
   const marqueeTrackRef = useRef(null);
   const marqueeWrapperRef = useRef(null);
-  const tweenRef = useRef(null);
 
   useEffect(() => {
     const track = marqueeTrackRef.current;
@@ -27,20 +24,15 @@ export default function ClientMarquee() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    // Duplicate children smoothly for seamless looping
     let currentX = 0;
-    let baseSpeed = 1.2; // pixels per frame
+    let baseSpeed = 1.2;
     let velocityMultiplier = 1;
     let direction = -1; // -1 = moving left, 1 = moving right
 
-    // Master continuous ticker loop
     const tickerFunc = () => {
-      // Return smoothly to base speed
       velocityMultiplier += (1 - velocityMultiplier) * 0.05;
-
       currentX += direction * baseSpeed * velocityMultiplier;
 
-      // Wrap-around modulo math based on half width
       const halfWidth = track.scrollWidth / 2;
       if (currentX <= -halfWidth) {
         currentX += halfWidth;
@@ -53,22 +45,19 @@ export default function ClientMarquee() {
 
     gsap.ticker.add(tickerFunc);
 
-    // Sync with ScrollTrigger velocity and scroll direction
     const st = ScrollTrigger.create({
       onUpdate: (self) => {
-        const vel = self.getVelocity(); // positive scrolling down, negative scrolling up
+        const vel = self.getVelocity();
         const absVel = Math.abs(vel);
 
         if (absVel > 30) {
-          // Speed up with scroll velocity
           const boost = Math.min(6, 1 + absVel / 350);
           velocityMultiplier = boost;
 
-          // Reverses direction on scroll up!
           if (vel > 0) {
-            direction = -1; // scroll down -> marquee moves left
+            direction = -1;
           } else if (vel < 0) {
-            direction = 1; // scroll up -> marquee reverses and moves right!
+            direction = 1;
           }
         }
       },
@@ -87,7 +76,7 @@ export default function ClientMarquee() {
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 bg-[#2E8B3C]" />
           <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#0B1F16]">
-            TRUSTED BY AMBITIOUS GLOBAL BRANDS & ENTERPRISE TEAMS
+            INDUSTRIES WE SERVE // TAILORED DIGITAL SERVICES &amp; ADAPTED STYLES
           </span>
         </div>
         <span className="font-mono text-[11px] font-bold text-[#2E8B3C] uppercase tracking-wider">
@@ -101,17 +90,16 @@ export default function ClientMarquee() {
           ref={marqueeTrackRef}
           className="flex items-center whitespace-nowrap will-change-transform py-2"
         >
-          {/* Repeat list twice for seamless infinite wrap */}
-          {[...clientLogos, ...clientLogos, ...clientLogos].map((client, idx) => (
+          {[...industriesList, ...industriesList, ...industriesList].map((ind, idx) => (
             <div
-              key={`${client.name}-${idx}`}
+              key={`${ind.name}-${idx}`}
               className="inline-flex items-center gap-4 sm:gap-6 px-6 sm:px-10 group cursor-pointer"
             >
               <span className="font-display text-3xl sm:text-5xl md:text-6xl tracking-tight uppercase font-bold text-[#0B1F16] group-hover:text-[#2E8B3C] transition-colors">
-                {client.name}
+                {ind.name}
               </span>
               <span className="font-mono text-[10px] sm:text-xs font-bold px-2 py-0.5 bg-[#0B1F16] text-[#FFFFFF] border border-[#0B1F16]">
-                {client.tag}
+                {ind.tag}
               </span>
               <span className="text-[#DAAF37] font-display text-2xl sm:text-3xl ml-2">
                 ★

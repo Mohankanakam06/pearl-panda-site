@@ -166,62 +166,65 @@ export default function Hero({ onOpenContact, onNavigate }) {
         ref={heroContentRef}
         className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 my-auto will-change-transform"
       >
-        {/* Category Tag */}
+        {/* Category Tag from PRD */}
         <div ref={tagRef} className="mb-6 flex items-center gap-3">
           <div className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-[#050d08] border-2 border-[#2E8B3C] shadow-brutal-sm text-[#70B85A] font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider">
             <span className="w-2 h-2 bg-[#38E54D] animate-ping" />
-            <span>NEO-BRUTALIST DIGITAL STUDIO // 2026</span>
+            <span>PEARL PANDA // WEBSITES • SOCIAL MEDIA • DIGITAL PRESENCE</span>
           </div>
         </div>
 
         {/* Huge Headline Split into Masked Overflow Containers */}
-        <div className="font-display uppercase text-white tracking-tight leading-[0.88] text-[13vw] sm:text-[11vw] md:text-[9.5vw] lg:text-[7.6rem] xl:text-[8.5rem]">
+        <div className="font-display uppercase text-white tracking-tight leading-[0.88] text-[12vw] sm:text-[10vw] md:text-[8.5vw] lg:text-[7.2rem] xl:text-[8.2rem]">
           {/* Line 1 */}
           <div className="overflow-hidden pb-1 sm:pb-2">
             <div ref={line1Ref} className="will-change-transform drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
-              HIGH-IMPACT
+              WEBSITES &amp;
             </div>
           </div>
 
           {/* Line 2 */}
           <div className="overflow-hidden pb-1 sm:pb-2">
             <div ref={line2Ref} className="will-change-transform text-[#38E54D] drop-shadow-[0_10px_25px_rgba(46,139,60,0.4)]">
-              WEBSITES & SOCIAL
+              SOCIAL MEDIA
             </div>
           </div>
 
           {/* Line 3 */}
           <div className="overflow-hidden pb-1 sm:pb-2 flex items-center gap-4 flex-wrap">
             <div ref={line3Ref} className="will-change-transform text-[#FAFAFA] drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
-              ENGINEERED TO LEAD.
+              FOR MODERN BUSINESSES.
             </div>
           </div>
         </div>
 
-        {/* Subtext and Direct Project CTAs */}
+        {/* Subtext and Direct PRD-based Actions */}
         <div className="mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
           <div ref={subtextRef} className="lg:col-span-7">
-            <p className="text-white/80 font-body text-base sm:text-lg md:text-xl font-medium max-w-2xl leading-relaxed border-l-4 border-[#DAAF37] pl-4">
-              We engineer bespoke high-performance websites and run monthly social media engines for forward-thinking brands who refuse to look ordinary.
+            <p className="text-white/85 font-body text-base sm:text-lg md:text-xl font-medium max-w-2xl leading-relaxed border-l-4 border-[#DAAF37] pl-4">
+              Pearl Panda provides modern digital services for businesses and organizations that want a stronger online presence. Our current services focus on website development and monthly social media management.
             </p>
+            <div className="mt-3 font-mono text-xs text-[#DAAF37] tracking-wider pl-5 uppercase font-bold">
+              Clean. Friendly. Modern. Memorable.
+            </div>
           </div>
 
           <div ref={ctaGroupRef} className="lg:col-span-5 flex flex-wrap items-center gap-4 lg:justify-end">
             <button
-              onClick={() => onOpenContact('Hero Consultation')}
-              data-cursor="QUOTE"
+              onClick={() => onOpenContact('General Inquiry')}
+              data-cursor="ENQUIRE"
               className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold flex items-center gap-3 border-3 border-[#FFFFFF] shadow-brutal-white hover:bg-[#48f060]"
             >
-              <span>START A PROJECT</span>
+              <span>ENQUIRE SERVICES</span>
               <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
             </button>
 
             <button
-              onClick={() => onNavigate('projects')}
+              onClick={() => onNavigate('services')}
               data-cursor="VIEW"
               className="btn-brutal bg-[#050d08] text-white px-5 sm:px-6 py-3.5 sm:py-4 text-xs sm:text-sm font-mono border-2 border-white/40 hover:border-[#38E54D] hover:text-[#38E54D]"
             >
-              EXPLORE WORK
+              WEBSITE TYPES
             </button>
           </div>
         </div>
@@ -241,10 +244,10 @@ export default function Hero({ onOpenContact, onNavigate }) {
           </div>
           <div className="flex flex-col">
             <span className="font-mono text-[10px] tracking-widest uppercase text-[#A8F5B8] font-bold">
-              SCROLL TO EXPLORE
+              SCROLL TO EXPLORE WORK
             </span>
             <span className="font-mono text-[9px] text-white/60">
-              IVENTIONS-STYLE CINEMATIC SCROLL
+              WEBSITES • SOCIAL MEDIA • COMBO
             </span>
           </div>
         </div>

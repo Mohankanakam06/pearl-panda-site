@@ -8,47 +8,43 @@ gsap.registerPlugin(ScrollTrigger);
 const projects = [
   {
     id: '01',
-    category: 'DYNAMIC WEB PLATFORM',
-    location: 'ZURICH, CH',
-    client: 'Velox Architekten',
-    title: 'MONOLITHIC ARCHIVE',
-    blurb: 'Ultra-fast architectural archive engineered with dynamic project filtering, deep-zoom canvas blueprints, and raw monolithic brutalist typography.',
+    category: '1. BASIC PORTFOLIO WEBSITE',
+    industry: 'CAFÉS & RESTAURANTS',
+    title: 'MENU & RESERVATIONS SHOWCASE',
+    blurb: 'Clean responsive informational website with essential pages, navigation, contact / CTA sections and deployment. Features menu/food showcase, location, and enquiry forms.',
     image: '/assets/project-1.svg',
     accent: '#70B85A',
-    metrics: '+310% DWELL TIME // 99 LIGHTHOUSE SCORE',
+    deliverables: 'RESPONSIVE PAGES // FOOD SHOWCASE // INSTAGRAM REELS',
   },
   {
     id: '02',
-    category: 'E-COMMERCE & 3D ATELIER',
-    location: 'TOKYO, JP',
-    client: 'Kinetic Form Inc.',
-    title: 'AVANT-GARDE 3D SHOP',
-    blurb: 'High-performance interactive 3D garment customization suite, brutalist grid layouts, and sub-second checkout speeds driving global conversions.',
+    category: '2. WEBSITE WITH BACKEND',
+    industry: 'EVENTS & EVENT COMPANIES',
+    title: 'EVENT SHOWCASE & TICKETING',
+    blurb: 'Frontend connected to backend and database for dynamic information, forms and required functionality. Includes event galleries, promotional countdowns, and dynamic enquiry handling.',
     image: '/assets/project-2.svg',
     accent: '#DAAF37',
-    metrics: '+185% CHECKOUT CONVERSION // 100K+ SESSIONS',
+    deliverables: 'DYNAMIC DATABASE // ENQUIRY FORMS // HYPE PROMOTIONS',
   },
   {
     id: '03',
-    category: 'ENTERPRISE WEB APPLICATION',
-    location: 'STOCKHOLM, SE',
-    client: 'Neo-Lumen Nordic',
-    title: 'REAL-TIME TELEMETRY',
-    blurb: 'Telemetry matrix dashboard featuring multi-node renewable energy streaming, interactive radar monitoring, and mission-critical cloud stability.',
+    category: '3. FULL BACKEND WEBSITE',
+    industry: 'REAL ESTATE DEVELOPMENTS',
+    title: 'PROPERTY LISTINGS & PORTAL',
+    blurb: 'Complete web application with backend, database, login / authentication and application-specific functionality. Filterable property listings, lead-focused landing pages and investor portal.',
     image: '/assets/project-3.svg',
     accent: '#38E54D',
-    metrics: '0.04s LATENCY // 10M DATA POINTS/SEC',
+    deliverables: 'SECURE AUTH // PROPERTY DATABASE // VIRTUAL WALKTHROUGHS',
   },
   {
     id: '04',
-    category: 'MONTHLY SOCIAL CADENCE',
-    location: 'LONDON, UK',
-    client: 'Chrono Labs Global',
-    title: 'OMNICHANNEL ENGINE',
-    blurb: 'High-impact editorial social media engine, branded multi-slide carousels, and strategic thought leadership driving continuous qualified inbound B2B pipeline.',
+    category: '4. WEBSITE + SOCIAL MEDIA COMBO',
+    industry: 'RETAIL, CREATORS & STARTUPS',
+    title: 'UNIFIED DIGITAL PRESENCE',
+    blurb: 'The combo package combines website development with a monthly social media package. The website is handled as a project, while social media continues as a monthly service with unified brand consistency.',
     image: '/assets/project-4.svg',
     accent: '#FFFFFF',
-    metrics: '420% INBOUND LEAD SURGE // 2.4M IMPRESSIONS',
+    deliverables: 'PROJECT BUILD + MONTHLY CREATIVES, COPY & SCHEDULING',
   },
 ];
 
@@ -70,7 +66,6 @@ export default function HighlightProjects({ onOpenContact }) {
 
     const ctx = gsap.context(() => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const isMobile = window.innerWidth < 768;
 
       if (prefersReducedMotion) {
         return;
@@ -127,7 +122,7 @@ export default function HighlightProjects({ onOpenContact }) {
           duration: 1,
           ease: 'power2.inOut',
         }, `slide-${i}`)
-        // Image counter-parallax: zooms down from 1.25 to 1.0 and translates down
+        // Image counter-parallax
         .to(img, {
           scale: 1,
           yPercent: 0,
@@ -174,12 +169,10 @@ export default function HighlightProjects({ onOpenContact }) {
 
       if (Math.abs(deltaY) > 40 || Math.abs(deltaX) > 40) {
         if (deltaY < -40 || deltaX < -40) {
-          // Swipe up / left -> next slide
           if (currentIndex < projects.length - 1) {
             goToSlide(currentIndex + 1);
           }
         } else if (deltaY > 40 || deltaX > 40) {
-          // Swipe down / right -> prev slide
           if (currentIndex > 0) {
             goToSlide(currentIndex - 1);
           }
@@ -259,16 +252,16 @@ export default function HighlightProjects({ onOpenContact }) {
                 className="relative z-10 w-full h-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 flex flex-col justify-center select-none pt-28 sm:pt-32 pb-16"
               >
                 <div className="max-w-3xl">
-                  {/* Category & Location Badges */}
+                  {/* Category & Industry Badges */}
                   <div className="slide-reveal flex items-center flex-wrap gap-3 mb-4 sm:mb-6">
                     <span className="px-3 py-1 bg-[#0B1F16] border-2 border-white/80 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-white shadow-brutal-sm">
                       {project.category}
                     </span>
                     <span className="px-3 py-1 bg-[#0B1F16] border-2 border-[#2E8B3C] font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#70B85A] shadow-brutal-sm">
-                      {project.location}
+                      {project.industry}
                     </span>
-                    <span className="hidden sm:inline-block font-mono text-xs text-white/50">
-                      CLIENT: {project.client}
+                    <span className="hidden sm:inline-block font-mono text-xs text-white/60">
+                      PEARL PANDA PORTFOLIO
                     </span>
                   </div>
 
@@ -282,18 +275,18 @@ export default function HighlightProjects({ onOpenContact }) {
                     {project.blurb}
                   </p>
 
-                  {/* Metrics Badge & Action Button */}
+                  {/* Deliverables Badge & Action Button */}
                   <div className="slide-reveal flex flex-wrap items-center gap-4">
                     <div className="px-3.5 py-2 bg-[#050d08]/90 border border-[#DAAF37] font-mono text-xs text-[#DAAF37] font-bold">
-                      {project.metrics}
+                      {project.deliverables}
                     </div>
 
                     <button
-                      onClick={() => onOpenContact(`Project Inquiry: ${project.title}`)}
-                      data-cursor="INQUIRE"
+                      onClick={() => onOpenContact(`Inquire: ${project.category}`)}
+                      data-cursor="ENQUIRE"
                       className="btn-brutal bg-[#FFFFFF] text-[#0B1F16] px-5 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-[#38E54D]"
                     >
-                      <span>VIEW CASE STUDY</span>
+                      <span>ENQUIRE THIS TYPE</span>
                       <ArrowUpRight className="w-4 h-4 stroke-[3]" />
                     </button>
                   </div>
@@ -304,11 +297,11 @@ export default function HighlightProjects({ onOpenContact }) {
         </div>
 
         {/* Top Header Floating Status inside pinned container */}
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 pt-24 sm:pt-28 flex items-center justify-between pointer-events-none">
+        <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 pt-20 sm:pt-24 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-2 bg-[#050d08] border-2 border-[#2E8B3C] px-3 py-1 shadow-brutal-sm pointer-events-auto">
             <span className="w-2 h-2 bg-[#38E54D] animate-pulse" />
             <span className="font-mono text-xs uppercase tracking-widest text-[#70B85A] font-bold">
-              PINNED SHOWCASE // SCRUB TO WIPE
+              WORK &amp; PORTFOLIO // SELECTED DIGITAL SERVICES
             </span>
           </div>
 
@@ -330,7 +323,7 @@ export default function HighlightProjects({ onOpenContact }) {
               <button
                 key={p.id}
                 onClick={() => goToSlide(idx)}
-                aria-label={`Jump to project ${idx + 1}`}
+                aria-label={`Jump to work ${idx + 1}`}
                 className="h-2 flex-1 transition-all duration-300 relative group overflow-hidden border border-white/20"
                 style={{
                   backgroundColor: idx <= currentIndex ? '#38E54D' : '#0B1F16',
@@ -345,13 +338,13 @@ export default function HighlightProjects({ onOpenContact }) {
           {/* Prev / Next Brutalist Navigation Controls */}
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-block font-mono text-[11px] text-white/50 uppercase tracking-widest mr-2">
-              CLICK OR SCROLL TO SCRUB
+              CLICK OR SCROLL TO SCRUB WORK
             </span>
 
             <button
               onClick={() => goToSlide(currentIndex - 1)}
               disabled={currentIndex === 0}
-              aria-label="Previous project"
+              aria-label="Previous work"
               data-cursor="PREV"
               className={`p-2.5 sm:p-3 bg-[#0B1F16] border-2 border-white shadow-brutal-sm text-white transition-all ${
                 currentIndex === 0
@@ -365,7 +358,7 @@ export default function HighlightProjects({ onOpenContact }) {
             <button
               onClick={() => goToSlide(currentIndex + 1)}
               disabled={currentIndex === projects.length - 1}
-              aria-label="Next project"
+              aria-label="Next work"
               data-cursor="NEXT"
               className={`p-2.5 sm:p-3 bg-[#38E54D] border-2 border-white shadow-brutal-sm text-[#0B1F16] font-bold transition-all ${
                 currentIndex === projects.length - 1

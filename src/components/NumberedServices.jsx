@@ -8,9 +8,16 @@ gsap.registerPlugin(ScrollTrigger);
 const servicesData = [
   {
     num: '01',
-    title: 'BESPOKE PORTFOLIO & BRAND PLATFORM',
-    oneLiner: 'Ultra-fast, mobile-first brand flagships engineered with modern typography, zero-bloat code, and high-converting inquiry capture.',
-    deliverables: ['Custom Neo-Brutalist Layouts', 'Sub-second Edge CDN Deployment', 'Interactive Canvas Showcases', 'Automated Lead Notification'],
+    category: 'WEBSITE DEVELOPMENT',
+    title: 'BASIC PORTFOLIO WEBSITE',
+    oneLiner: 'Clean responsive informational website with essential pages, navigation, contact / CTA sections and deployment.',
+    deliverables: [
+      'Responsive pages across mobile, tablet & desktop',
+      'Essential navigation & service / work sections',
+      'High-converting contact / CTA sections',
+      'Direct deployment & fast load performance'
+    ],
+    examples: 'Café, restaurant, portfolio, local business',
     image: '/assets/service-1.svg',
     cardBg: 'bg-[#0B1F16]',
     textColor: 'text-white',
@@ -21,9 +28,16 @@ const servicesData = [
   },
   {
     num: '02',
-    title: 'DYNAMIC WEB SOFTWARE & CLOUD DATABASE',
-    oneLiner: 'Interactive web applications powered by robust cloud databases, automated workflows, client portals, and real-time synchronization.',
-    deliverables: ['Cloud Database Architecture', 'Role-Based Authentication', 'Third-Party API Integrations', 'Real-Time Telemetry Panels'],
+    category: 'WEBSITE DEVELOPMENT',
+    title: 'WEBSITE WITH BACKEND',
+    oneLiner: 'Frontend connected to backend and database for dynamic information, forms and required functionality.',
+    deliverables: [
+      'Frontend + backend + cloud database integration',
+      'Dynamic information & structured content data',
+      'Dynamic enquiry forms & lead handling',
+      'Custom database schema & API connections'
+    ],
+    examples: 'Event company, business directory, property listings',
     image: '/assets/service-2.svg',
     cardBg: 'bg-[#FFFFFF]',
     textColor: 'text-[#0B1F16]',
@@ -34,9 +48,16 @@ const servicesData = [
   },
   {
     num: '03',
-    title: 'INTERACTIVE 3D & DIGITAL EXPERIENCES',
-    oneLiner: 'Immersive WebGL and Three.js environments that transform passive website visitors into captivated brand evangelists.',
-    deliverables: ['Three.js Volumetric Particle Systems', 'Custom GLSL Shaders', 'Cinematic Product Customizers', 'Hardware-Accelerated 60fps'],
+    category: 'WEBSITE DEVELOPMENT',
+    title: 'FULL BACKEND WEBSITE',
+    oneLiner: 'Complete web application with backend, database, login / authentication and application-specific functionality.',
+    deliverables: [
+      'Complete web application architecture',
+      'Secure login / authentication & permissions',
+      'Application-specific functionality & workflows',
+      'Customer portals, booking engines & dashboards'
+    ],
+    examples: 'Real-estate platform, booking system, customer portal',
     image: '/assets/service-3.svg',
     cardBg: 'bg-[#2E8B3C]',
     textColor: 'text-white',
@@ -47,9 +68,16 @@ const servicesData = [
   },
   {
     num: '04',
-    title: 'MONTHLY HIGH-IMPACT SOCIAL CADENCE',
-    oneLiner: 'Continuous brand dominance through multi-slide educational carousels, persuasive conversion hooks, and hands-off publishing.',
-    deliverables: ['Monthly Editorial Roadmaps', 'Branded Visual Creatives', 'Persuasive Direct-Response Copy', 'Monthly Growth Analytics'],
+    category: 'MONTHLY SOCIAL MEDIA MANAGEMENT',
+    title: 'SOCIAL MEDIA — MONTHLY PACKAGE',
+    oneLiner: 'Monthly packages covering content planning, creative content, captions and publishing support adapted to your industry.',
+    deliverables: [
+      'Content Planning: Monthly ideas, pillars & calendar',
+      'Social Creatives: Branded posts, carousels & formats',
+      'Captions & Copy: Hooks, CTAs & platform copy',
+      'Scheduling, Publishing & Monthly Overview report'
+    ],
+    examples: 'Cafés, events, real estate, retail, creators, startups',
     image: '/assets/service-4.svg',
     cardBg: 'bg-[#050d08]',
     textColor: 'text-white',
@@ -70,7 +98,6 @@ export default function NumberedServices({ onOpenContact }) {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefersReducedMotion) return;
 
-      // Animate clip-path reveal for each service card's image as it enters the viewport
       imageRefs.current.forEach((imgEl, idx) => {
         if (!imgEl) return;
 
@@ -105,22 +132,48 @@ export default function NumberedServices({ onOpenContact }) {
       className="relative z-20 w-full bg-[#0B1F16] text-white py-24 sm:py-32 px-4 sm:px-8 md:px-12"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
+        {/* Section Header from PRD */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 sm:mb-20">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#050d08] border-2 border-[#2E8B3C] font-mono text-xs uppercase tracking-widest text-[#70B85A] font-bold mb-4 shadow-brutal-sm">
               <span className="w-2 h-2 bg-[#38E54D]" />
-              <span>CORE CAPABILITIES // 01 - 04</span>
+              <span>SERVICES WE PROVIDE // 01 - 04</span>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold uppercase tracking-tight text-white leading-[0.92]">
-              NUMBERED SERVICES <br />
-              <span className="text-[#38E54D]">ENGINEERED TO DOMINATE</span>
+              WEBSITE TYPES &amp; <br />
+              <span className="text-[#38E54D]">MONTHLY SOCIAL MEDIA</span>
             </h2>
           </div>
 
-          <p className="max-w-md text-sm sm:text-base text-white/75 font-body leading-relaxed border-l-3 border-[#DAAF37] pl-4">
-            Each service functions as a standalone high-impact asset or seamlessly connects into an omnichannel growth machine.
+          <p className="max-w-md text-sm sm:text-base text-white/80 font-body leading-relaxed border-l-3 border-[#DAAF37] pl-4">
+            Pearl Panda develops websites based on the client&apos;s industry and selected website type. Content and creative direction are adapted to the client&apos;s industry, audience and brand style.
           </p>
+        </div>
+
+        {/* Highlight Banner: Website + Social Media Combo (from PRD Page 2) */}
+        <div className="mb-14 p-6 sm:p-8 bg-[#050d08] border-4 border-[#DAAF37] shadow-brutal-gold-lg">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#DAAF37] text-[#0B1F16] font-mono text-xs font-bold uppercase mb-3">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>COMBINED OPTION // WEBSITE + SOCIAL MEDIA COMBO</span>
+              </div>
+              <h3 className="font-display text-2xl sm:text-3xl text-white uppercase tracking-tight mb-2">
+                PROJECT BUILD + ONGOING MONTHLY SERVICE
+              </h3>
+              <p className="text-sm sm:text-base text-white/80 max-w-3xl font-body leading-relaxed">
+                The combo package combines website development with a monthly social media package. The website is handled as a project, while social media continues as a monthly service. Website and social media share the same visual direction, colours, typography and content style.
+              </p>
+            </div>
+            <button
+              onClick={() => onOpenContact('Website + Social Media Combo')}
+              data-cursor="COMBO"
+              className="btn-brutal bg-[#DAAF37] text-[#0B1F16] px-6 py-3.5 text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-white flex-shrink-0"
+            >
+              <span>ENQUIRE COMBO PACKAGE</span>
+              <ArrowUpRight className="w-4 h-4 stroke-[3]" />
+            </button>
+          </div>
         </div>
 
         {/* Sticky Stacking Cards Container */}
@@ -144,7 +197,7 @@ export default function NumberedServices({ onOpenContact }) {
                         {service.num}
                       </span>
                       <div className="font-mono text-xs font-bold uppercase px-3 py-1 border-2 border-current">
-                        TIER // {service.num} OF 04
+                        {service.category}
                       </div>
                     </div>
 
@@ -153,10 +206,16 @@ export default function NumberedServices({ onOpenContact }) {
                       {service.title}
                     </h3>
 
-                    {/* One-Line Description */}
-                    <p className="text-sm sm:text-base md:text-lg opacity-90 leading-relaxed font-body mb-6 font-medium">
+                    {/* One-Line Description from PRD */}
+                    <p className="text-sm sm:text-base md:text-lg opacity-90 leading-relaxed font-body mb-4 font-medium">
                       {service.oneLiner}
                     </p>
+
+                    {/* Typical Examples from PRD */}
+                    <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 bg-black/20 border border-current/30 text-xs font-mono">
+                      <span className="font-bold opacity-75">EXAMPLES:</span>
+                      <span className="font-semibold">{service.examples}</span>
+                    </div>
 
                     {/* Deliverables Checklist Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t-2 border-current/20 mb-8">
@@ -173,10 +232,10 @@ export default function NumberedServices({ onOpenContact }) {
                   <div>
                     <button
                       onClick={() => onOpenContact(`Inquire: ${service.title}`)}
-                      data-cursor="INQUIRE"
+                      data-cursor="ENQUIRE"
                       className="btn-brutal bg-[#DAAF37] text-[#0B1F16] px-6 sm:px-8 py-3 sm:py-4 text-xs sm:text-sm font-bold flex items-center gap-3 hover:bg-white"
                     >
-                      <span>INQUIRE THIS SERVICE</span>
+                      <span>ENQUIRE THIS SERVICE</span>
                       <ArrowUpRight className="w-4 h-4 stroke-[3]" />
                     </button>
                   </div>
@@ -194,10 +253,9 @@ export default function NumberedServices({ onOpenContact }) {
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                     />
-                    {/* Hover Overlay Stamp */}
                     <div className="absolute inset-0 bg-[#0B1F16]/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                       <span className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-4 py-2 text-xs font-mono font-bold">
-                        EXPAND VIEW // ↗
+                        PRD SPECIFICATION // ↗
                       </span>
                     </div>
                   </div>

@@ -1,86 +1,76 @@
 import React from 'react';
-import { Zap, Code, Palette, Users, ArrowUpRight, Sparkles, Check } from 'lucide-react';
+import { ArrowUpRight, Sparkles, Check, CheckCircle2 } from 'lucide-react';
 
 export default function AboutSection({ onOpenContact }) {
+  // Exact 6 steps from PRD Page 2 (Section 5: HOW WE WORK)
   const steps = [
     {
       step: '01',
-      title: 'DISCOVERY & VISION',
-      desc: 'Market analysis, direct competitor audit, client persona mapping, and architectural technical blueprinting.'
+      title: 'UNDERSTAND THE BUSINESS',
+      desc: 'Understand the business, industry, audience and requirements.'
     },
     {
       step: '02',
-      title: 'ROADMAP & ARCHITECTURE',
-      desc: 'Selection of optimal web framework (React / Vite / GSAP / Three.js) and tailored monthly social cadence.'
+      title: 'SELECT THE PACKAGE',
+      desc: 'Select the website type and/or social media package.'
     },
     {
       step: '03',
-      title: 'TRANSPARENT SCOPE',
-      desc: 'Milestones, deliverables, fixed investment schedules, and zero hidden scope creep confirmed upfront.'
+      title: 'CONFIRM SCOPE & TIMELINE',
+      desc: 'Confirm scope, content requirements, timeline and deliverables.'
     },
     {
       step: '04',
-      title: 'CRAFT & ENGINEERING',
-      desc: 'Bespoke design, sub-second code execution, 60fps animations, and striking branded creative production.'
+      title: 'DESIGN & DEVELOP',
+      desc: 'Design, develop and prepare the required digital content.'
     },
     {
       step: '05',
-      title: 'STAGING & VALIDATION',
-      desc: 'Rigorous cross-device testing across mobile, tablet, and ultra-wide displays before launch approval.'
+      title: 'REVIEW & REVISE',
+      desc: 'Share work for review and complete agreed revisions.'
     },
     {
       step: '06',
-      title: 'GLOBAL DEPLOYMENT',
-      desc: 'High-speed edge CDN deployment, DNS setup, and rollout of scheduled monthly social media distribution.'
+      title: 'LAUNCH & PUBLISH',
+      desc: 'Launch the website and/or publish approved social media content.'
     }
   ];
 
-  const pillars = [
-    {
-      icon: Zap,
-      title: 'SUB-SECOND SPEED',
-      desc: 'Clean DOM hierarchies and edge CDN delivery achieving 98+ Google Lighthouse performance scores.'
-    },
-    {
-      icon: Code,
-      title: '100% BESPOKE CODE',
-      desc: 'Zero generic templates or bloated page-builders. Pure custom code crafted for brand dominance.'
-    },
-    {
-      icon: Palette,
-      title: 'OMNICHANNEL HARMONY',
-      desc: 'Websites and social feeds share matching brutalist typography, color psychology, and conversion voice.'
-    },
-    {
-      icon: Users,
-      title: 'DIRECT SENIOR ACCESS',
-      desc: 'Communicate directly with senior engineering directors. Fast iterations with zero account middlemen.'
-    }
+  // Exact Brutalist principles from PRD Page 3 (Section 7: WEBSITE THEME — BRUTALISM)
+  const brutalistPrinciples = [
+    'Bold typography and strong visual hierarchy.',
+    'Hard edges, visible borders and block-based layouts.',
+    'High contrast using white, deep green / black and primary green.',
+    'Gold used selectively as a premium accent.',
+    'Strong buttons and direct calls-to-action.',
+    'Minimal unnecessary decoration; typography, spacing and shapes create the visual character.',
+    'Responsive across mobile, tablet and desktop.',
+    'Usability and accessibility remain important.'
   ];
 
   return (
     <section id="about" className="relative z-20 py-24 sm:py-32 px-4 sm:px-8 md:px-12 bg-[#2E8B3C] text-white border-y-4 border-[#0B1F16] select-none">
       <div className="max-w-7xl mx-auto">
         
-        {/* Section Header */}
+        {/* Section Header from PRD */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 sm:mb-20">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0B1F16] border-2 border-white text-[#DAAF37] font-mono text-xs uppercase tracking-widest font-bold mb-4 shadow-brutal-white">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>THE PEARL STANDARD // 6-STAGE EXECUTION</span>
+              <span>HOW WE WORK // PRD SECTION 5</span>
             </div>
             <h2 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold uppercase tracking-tight text-white leading-[0.92]">
-              RIGOROUS PROCESS. <br />
-              <span className="text-[#DAAF37]">UNCOMPROMISING SPEED.</span>
+              OUR 6-STAGE <br />
+              <span className="text-[#DAAF37]">EXECUTION PROCESS</span>
             </h2>
           </div>
 
-          <p className="max-w-md text-sm sm:text-base text-white/90 font-body leading-relaxed border-l-4 border-white pl-4 font-medium">
-            Pearl Panda eliminates agency bloat. We combine bold neo-brutalist aesthetics with frictionless engineering so every build delivers tangible business velocity.
+          <p className="max-w-md text-sm sm:text-base text-white/95 font-body leading-relaxed border-l-4 border-white pl-4 font-medium">
+            Package contents and deliverables are confirmed before work begins. Rates are not fixed on the website; visitors are directed to contact Pearl Panda for current pricing.
           </p>
         </div>
 
-        {/* 6 Steps: How We Work */}
+        {/* 6 Steps: How We Work (PRD Page 2) */}
         <div className="mb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {steps.map((st) => (
@@ -107,48 +97,41 @@ export default function AboutSection({ onOpenContact }) {
           </div>
         </div>
 
-        {/* Pillars of Engineering Excellence */}
+        {/* Section 7 from PRD: WEBSITE THEME — BRUTALISM */}
         <div className="bg-[#0B1F16] border-4 border-white shadow-brutal-white-lg p-8 sm:p-12 relative overflow-hidden">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#DAAF37] mb-3 font-bold">
             <Sparkles className="w-3.5 h-3.5" />
-            STANDARDS OF CRAFT
+            BRAND &amp; WEBSITE STYLE // PRD SECTION 7
           </div>
-          <h3 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-8 uppercase tracking-tight">
-            WHY VISIONARY BRANDS PARTNER WITH PEARL PANDA
+          <h3 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-3 uppercase tracking-tight">
+            WEBSITE THEME — BRUTALISM
           </h3>
+          <p className="text-sm sm:text-base text-white/80 font-body max-w-2xl mb-8 leading-relaxed">
+            The Pearl Panda website follows a Brutalist / Neo-Brutalist visual direction: bold, direct, distinctive and intentionally raw while remaining practical and easy to use.
+          </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            {pillars.map((pillar, idx) => {
-              const Icon = pillar.icon;
-              return (
-                <div key={idx} className="p-6 bg-[#050d08] border-2 border-[#70B85A] flex flex-col justify-between hover:border-white transition shadow-brutal-sm">
-                  <div>
-                    <div className="w-10 h-10 bg-[#2E8B3C] text-white flex items-center justify-center font-bold mb-4 border border-white">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <h4 className="font-display text-lg text-white mb-2 uppercase tracking-wide">
-                      {pillar.title}
-                    </h4>
-                    <p className="text-xs text-white/70 leading-relaxed font-body">
-                      {pillar.desc}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            {brutalistPrinciples.map((principle, idx) => (
+              <div key={idx} className="p-4 bg-[#050d08] border-2 border-[#70B85A] flex items-start gap-3 shadow-brutal-sm">
+                <CheckCircle2 className="w-4 h-4 text-[#38E54D] flex-shrink-0 mt-0.5" />
+                <span className="text-xs font-mono text-white/90 leading-relaxed">
+                  {principle}
+                </span>
+              </div>
+            ))}
           </div>
 
-          {/* Bottom Action strip */}
+          {/* PRD Motto & Direct Action */}
           <div className="pt-6 border-t-2 border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="font-mono text-xs text-white/80 uppercase tracking-widest">
-              FIXED TIMELINES // ZERO GUESSWORK // 100% OWNERSHIP
+            <span className="font-mono text-xs text-[#DAAF37] uppercase tracking-widest font-bold">
+              CLEAN. FRIENDLY. MODERN. MEMORABLE.
             </span>
             <button
               onClick={() => onOpenContact('Process Inquiry')}
-              data-cursor="START"
+              data-cursor="ENQUIRE"
               className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-6 py-3 text-xs font-bold flex items-center gap-2 border-2 border-white hover:bg-white"
             >
-              <span>DISCUSS YOUR TIMELINE</span>
+              <span>CONTACT FOR CURRENT RATES</span>
               <ArrowUpRight className="w-4 h-4 stroke-[3]" />
             </button>
           </div>
