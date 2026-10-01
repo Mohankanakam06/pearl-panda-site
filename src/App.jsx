@@ -1,36 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import CinematicStorySection from './components/CinematicStorySection';
-import ServicesSection from './components/ServicesSection';
-import IndustriesSection from './components/IndustriesSection';
+import HighlightProjects from './components/HighlightProjects';
+import ClientMarquee from './components/ClientMarquee';
+import NumberedServices from './components/NumberedServices';
 import AboutSection from './components/AboutSection';
+import SplitCTA from './components/SplitCTA';
 import Footer from './components/Footer';
 import ContactModal from './components/ContactModal';
 import BottomBar from './components/BottomBar';
 import CustomCursor from './components/CustomCursor';
 import Preloader from './components/Preloader';
+import ScrollProgressBar from './components/ScrollProgressBar';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('nopreloader') !== 'true';
+    }
+    return true;
+  });
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [selectedService, setSelectedService] = useState('');
   const [activeSection, setActiveSection] = useState('home');
+  const lenisRef = useRef(null);
 
-  // Initialize Lenis Smooth Momentum Scrolling synchronized with GSAP
+  // Programmatic scroll helper via query param (?scroll=...)
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const scrollTarget = params.get('scroll');
+    if (scrollTarget) {
+      const targetY = parseInt(scrollTarget, 10);
+      setTimeout(() => {
+        window.scrollTo(0, targetY);
+      }, 400);
+    }
+  }, []);
+
+  // Initialize Lenis Smooth Momentum Scrolling synchronized with GSAP ScrollTrigger
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      return;
+    }
+
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       smoothWheel: true,
+      touchMultiplier: 1.5,
     });
+    lenisRef.current = lenis;
 
     lenis.on('scroll', ScrollTrigger.update);
 
@@ -53,31 +81,42 @@ export default function App() {
   };
 
   const handleNavigate = (sectionId) => {
-    setActiveSection(sectionId.replace('-websites', '').replace('-social', '').replace('-combo', ''));
-    if (sectionId === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    const id = sectionId.replace('-websites', '').replace('-social', '').replace('-combo', '');
+    setActiveSection(id);
+
+    if (id === 'home') {
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { duration: 1.2 });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       return;
     }
 
-    const targetEl = document.getElementById(sectionId) || document.getElementById(sectionId.split('-')[0]);
+    const targetEl = document.getElementById(id);
     if (targetEl) {
-      targetEl.scrollIntoView({ behavior: 'smooth' });
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(targetEl, { offset: -60, duration: 1.2 });
+      } else {
+        targetEl.scrollIntoView({ behavior: 'smooth' });
+      }
     }
   };
 
+  // Track active section for navigation indicators
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 300;
+      const scrollPos = window.scrollY + 250;
+      const projectsEl = document.getElementById('projects');
       const servicesEl = document.getElementById('services');
-      const industriesEl = document.getElementById('industries');
       const aboutEl = document.getElementById('about');
 
       if (aboutEl && scrollPos >= aboutEl.offsetTop) {
         setActiveSection('about');
-      } else if (industriesEl && scrollPos >= industriesEl.offsetTop) {
-        setActiveSection('industries');
       } else if (servicesEl && scrollPos >= servicesEl.offsetTop) {
         setActiveSection('services');
+      } else if (projectsEl && scrollPos >= projectsEl.offsetTop) {
+        setActiveSection('projects');
       } else {
         setActiveSection('home');
       }
@@ -88,47 +127,61 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-[#050d08] text-white selection:bg-[#38E54D] selection:text-[#050d08]">
-      {/* Interactive Custom Cursor */}
+    <div className="relative min-h-screen bg-[#0B1F16] text-white selection:bg-[#38E54D] selection:text-[#0B1F16]">
+      {/* 1. Global Scroll Progress Bar */}
+      <ScrollProgressBar />
+
+      {/* 2. Interactive Neo-Brutalist Custom Cursor with contextual labels */}
       <CustomCursor />
 
-      {/* Interactive Neo-Brutalist Preloader */}
+      {/* 3. Neo-Brutalist Preloader with Block Wipes Curtain Transition */}
       {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
 
-      {/* Top Navbar */}
-      <Navbar onOpenContact={() => handleOpenContact()} />
+      {/* 4. Fixed Top Navbar */}
+      <Navbar onOpenContact={() => handleOpenContact('General Inquiry')} />
 
-      {/* Hero Section */}
+      {/* 5. Section 1: Hero (Full-viewport video background, masked reveals, audio toggle, stacking transition) */}
       <Hero
-        onOpenContact={() => handleOpenContact()}
+        onOpenContact={handleOpenContact}
         onNavigate={handleNavigate}
       />
 
-      {/* Cinematic Scroll-Driven Storytelling Section (Directly after Hero on Pure Black) */}
-      <CinematicStorySection />
+      {/* 6. Section 2: Highlight Projects (Full-bleed pinned slider, clip-path mask wipes, counter 01/04, prev/next) */}
+      <HighlightProjects
+        onOpenContact={handleOpenContact}
+      />
 
-      {/* Agency Services Showcase: 3 Tiers & Monthly Social */}
-      <ServicesSection onOpenContact={handleOpenContact} />
+      {/* 7. Section 3: Client Logo Marquee (Velocity-coupled speed & direction-reversal on scroll up, #FFFFFF background) */}
+      <ClientMarquee />
 
-      {/* Industry Solutions */}
-      <IndustriesSection onOpenContact={handleOpenContact} />
+      {/* 8. Section 4: Numbered Services 01-04 (Sticky stacking cards, clip-path image reveals, hover expansion, #0B1F16 background) */}
+      <NumberedServices
+        onOpenContact={handleOpenContact}
+      />
 
-      {/* Agency Process & Standards */}
-      <AboutSection onOpenContact={handleOpenContact} />
+      {/* 9. Agency Process & Standards (#2E8B3C emerald background alternating rhythm) */}
+      <AboutSection
+        onOpenContact={handleOpenContact}
+      />
 
-      {/* Footer */}
+      {/* 10. Section 5: Split CTA Quote / Contact (Expanding halves on hover, brutalist hard-shadow buttons) */}
+      <SplitCTA
+        onOpenContact={handleOpenContact}
+      />
+
+      {/* 11. Footer */}
       <Footer
-        onOpenContact={() => handleOpenContact()}
+        onOpenContact={() => handleOpenContact('Footer Inquiry')}
         onNavigate={handleNavigate}
       />
 
-      {/* Bottom Floating Navigation Dock */}
+      {/* 12. Bottom Floating Navigation Dock */}
       <BottomBar
         activeSection={activeSection}
         onNavigate={handleNavigate}
       />
 
-      {/* Contact & Custom Proposal Modal */}
+      {/* 13. Contact & Custom Proposal Modal */}
       <ContactModal
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}

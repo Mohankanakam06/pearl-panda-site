@@ -1,139 +1,291 @@
-import React, { useRef } from 'react';
-import { ArrowUpRight, ChevronDown } from 'lucide-react';
-import HeroScene3D from './HeroScene3D';
-import CursorReveal from './CursorReveal';
+import React, { useRef, useEffect, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Volume2, VolumeX, ArrowDown, ArrowUpRight, Sparkles } from 'lucide-react';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Hero({ onOpenContact, onNavigate }) {
-  const heroContainerRef = useRef(null);
+  const heroRef = useRef(null);
+  const heroContentRef = useRef(null);
+  const videoRef = useRef(null);
+  const line1Ref = useRef(null);
+  const line2Ref = useRef(null);
+  const line3Ref = useRef(null);
+  const tagRef = useRef(null);
+  const subtextRef = useRef(null);
+  const ctaGroupRef = useRef(null);
+  const scrollHintRef = useRef(null);
+
+  const [isMuted, setIsMuted] = useState(true);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+  // Line-by-line masked reveal on mount
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (prefersReducedMotion) {
+        gsap.set([line1Ref.current, line2Ref.current, line3Ref.current, tagRef.current, subtextRef.current, ctaGroupRef.current, scrollHintRef.current], {
+          yPercent: 0,
+          opacity: 1,
+        });
+        return;
+      }
+
+      // Initial state: hidden beneath clipping masks
+      gsap.set([line1Ref.current, line2Ref.current, line3Ref.current], {
+        yPercent: 125,
+        opacity: 0,
+      });
+      gsap.set([tagRef.current, subtextRef.current, ctaGroupRef.current, scrollHintRef.current], {
+        opacity: 0,
+        y: 24,
+      });
+
+      const tl = gsap.timeline({ delay: 0.2 });
+
+      // Staggered masked reveal of huge headline lines
+      tl.to([line1Ref.current, line2Ref.current, line3Ref.current], {
+        yPercent: 0,
+        opacity: 1,
+        duration: 1.15,
+        stagger: 0.16,
+        ease: 'power4.out',
+      })
+      .to(tagRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power3.out',
+      }, '-=0.8')
+      .to([subtextRef.current, ctaGroupRef.current], {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        stagger: 0.12,
+        ease: 'power3.out',
+      }, '-=0.6')
+      .to(scrollHintRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: 'power2.out',
+      }, '-=0.4');
+
+      // Stacking-card transition on scroll:
+      // Hero scales down slightly (0.94), dims opacity and slides back while the next section stacks over it
+      gsap.to(heroContentRef.current, {
+        scale: 0.94,
+        opacity: 0.25,
+        yPercent: 12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      // Video background subtle zoom & dim on scroll
+      if (videoRef.current) {
+        gsap.to(videoRef.current, {
+          scale: 1.12,
+          opacity: 0.2,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      // Scroll hint fades out immediately upon initiating scroll
+      if (scrollHintRef.current) {
+        gsap.to(scrollHintRef.current, {
+          opacity: 0,
+          y: -20,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: 'top top+=50',
+            end: 'top top+=200',
+            scrub: true,
+          },
+        });
+      }
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+    }
+  };
 
   return (
-    <section 
-      ref={heroContainerRef}
-      className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-[#050d08] pt-28 pb-24 md:pt-32 md:pb-28"
+    <section
+      id="home"
+      ref={heroRef}
+      className="relative w-full h-screen min-h-[700px] overflow-hidden bg-[#0B1F16] text-white flex flex-col justify-between select-none"
+      style={{ zIndex: 1 }}
     >
-      {/* 1. Volumetric Overhead Spotlight Beam */}
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[85vw] max-w-[1200px] h-[75vh] pointer-events-none z-0"
-        style={{
-          background: 'radial-gradient(ellipse 65% 50% at 50% -5%, rgba(56, 229, 77, 0.28) 0%, rgba(46, 139, 60, 0.16) 40%, rgba(11, 31, 22, 0.05) 75%, transparent 100%)',
-          filter: 'blur(45px)',
-        }}
-      />
+      {/* 1. Full-Viewport Looping Background Video */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <video
+          ref={videoRef}
+          src="/hero-reel.mp4"
+          poster="/assets/project-1.svg"
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+          onLoadedData={() => setIsVideoLoaded(true)}
+          className={`w-full h-full object-cover transition-opacity duration-1000 ${
+            isVideoLoaded ? 'opacity-40' : 'opacity-20'
+          }`}
+        />
+        {/* Brutalist Neo-Green Atmosphere Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F16] via-[#0B1F16]/65 to-[#0B1F16]/85" />
+        <div className="absolute inset-0 bg-[radial-gradient(#2E8B3C_1px,transparent_1px)] [background-size:32px_32px] opacity-15" />
+      </div>
 
-      {/* Subtle top light ray cone */}
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[55vw] max-w-[800px] h-[90vh] pointer-events-none z-0 opacity-40"
-        style={{
-          background: 'conic-gradient(from 180deg at 50% 0%, transparent 65deg, rgba(72, 208, 104, 0.2) 85deg, rgba(112, 184, 90, 0.25) 90deg, rgba(72, 208, 104, 0.2) 95deg, transparent 115deg)',
-          filter: 'blur(35px)',
-        }}
-      />
+      {/* 2. Top Header Spacer for Fixed Nav */}
+      <div className="relative z-10 w-full pt-24 sm:pt-28" />
 
-      {/* Atmospheric deep vignette borders */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#050d08] via-transparent to-[#050d08]/60 pointer-events-none z-[1]" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#050d08]/80 via-transparent to-[#050d08]/80 pointer-events-none z-[1]" />
+      {/* 3. Hero Core Content (Scales down on scroll) */}
+      <div
+        ref={heroContentRef}
+        className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 my-auto will-change-transform"
+      >
+        {/* Category Tag */}
+        <div ref={tagRef} className="mb-6 flex items-center gap-3">
+          <div className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-[#050d08] border-2 border-[#2E8B3C] shadow-brutal-sm text-[#70B85A] font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+            <span className="w-2 h-2 bg-[#38E54D] animate-ping" />
+            <span>NEO-BRUTALIST DIGITAL STUDIO // 2026</span>
+          </div>
+        </div>
 
-      {/* 2. Interactive Three.js Volumetric Particle Cloud */}
-      <HeroScene3D />
+        {/* Huge Headline Split into Masked Overflow Containers */}
+        <div className="font-display uppercase text-white tracking-tight leading-[0.88] text-[13vw] sm:text-[11vw] md:text-[9.5vw] lg:text-[7.6rem] xl:text-[8.5rem]">
+          {/* Line 1 */}
+          <div className="overflow-hidden pb-1 sm:pb-2">
+            <div ref={line1Ref} className="will-change-transform drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
+              HIGH-IMPACT
+            </div>
+          </div>
 
-      {/* 3. REVEAL LAYER: Cursor-following 260px soft spotlight reveal */}
-      <CursorReveal 
-        containerRef={heroContainerRef}
-        revealImage="/bg_2.png"
-        revealRadius={260}
-      />
+          {/* Line 2 */}
+          <div className="overflow-hidden pb-1 sm:pb-2">
+            <div ref={line2Ref} className="will-change-transform text-[#38E54D] drop-shadow-[0_10px_25px_rgba(46,139,60,0.4)]">
+              WEBSITES & SOCIAL
+            </div>
+          </div>
 
-      {/* 4. Main Hero Content Container */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 sm:px-10 md:px-14 w-full my-auto">
-        
-        {/* Top Tagline / Category Badge */}
-        <div className="flex items-center gap-3 mb-6 sm:mb-8">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-[#70B85A]/30 backdrop-blur-md">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#38E54D] animate-ping" />
-            <span className="font-mono-tag text-[11px] sm:text-xs uppercase tracking-[0.24em] text-[#A8F5B8] font-medium">
-              | WEBSITES • SOCIAL MEDIA • DIGITAL PRESENCE
+          {/* Line 3 */}
+          <div className="overflow-hidden pb-1 sm:pb-2 flex items-center gap-4 flex-wrap">
+            <div ref={line3Ref} className="will-change-transform text-[#FAFAFA] drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
+              ENGINEERED TO LEAD.
+            </div>
+          </div>
+        </div>
+
+        {/* Subtext and Direct Project CTAs */}
+        <div className="mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
+          <div ref={subtextRef} className="lg:col-span-7">
+            <p className="text-white/80 font-body text-base sm:text-lg md:text-xl font-medium max-w-2xl leading-relaxed border-l-4 border-[#DAAF37] pl-4">
+              We engineer bespoke high-performance websites and run monthly social media engines for forward-thinking brands who refuse to look ordinary.
+            </p>
+          </div>
+
+          <div ref={ctaGroupRef} className="lg:col-span-5 flex flex-wrap items-center gap-4 lg:justify-end">
+            <button
+              onClick={() => onOpenContact('Hero Consultation')}
+              data-cursor="QUOTE"
+              className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold flex items-center gap-3 border-3 border-[#FFFFFF] shadow-brutal-white hover:bg-[#48f060]"
+            >
+              <span>START A PROJECT</span>
+              <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <button
+              onClick={() => onNavigate('projects')}
+              data-cursor="VIEW"
+              className="btn-brutal bg-[#050d08] text-white px-5 sm:px-6 py-3.5 sm:py-4 text-xs sm:text-sm font-mono border-2 border-white/40 hover:border-[#38E54D] hover:text-[#38E54D]"
+            >
+              EXPLORE WORK
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Bottom Utilities: Scroll Hint (Left) & Audio Toggle (Right) */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 pb-20 sm:pb-24 flex items-center justify-between pointer-events-auto">
+        {/* Scroll Hint */}
+        <div
+          ref={scrollHintRef}
+          onClick={() => onNavigate('projects')}
+          data-cursor="SCROLL"
+          className="cursor-pointer group flex items-center gap-3 bg-[#050d08]/90 border-2 border-[#70B85A] px-3.5 py-2 shadow-brutal-sm hover:border-[#38E54D] transition-colors"
+        >
+          <div className="w-5 h-5 bg-[#38E54D] text-[#0B1F16] flex items-center justify-center font-bold animate-bounce">
+            <ArrowDown className="w-3.5 h-3.5 stroke-[3]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-mono text-[10px] tracking-widest uppercase text-[#A8F5B8] font-bold">
+              SCROLL TO EXPLORE
+            </span>
+            <span className="font-mono text-[9px] text-white/60">
+              IVENTIONS-STYLE CINEMATIC SCROLL
             </span>
           </div>
         </div>
 
-        {/* Split Typography Grid framing the central 3D scene */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-4 items-center">
-          
-          {/* Left Column: Headline + Primary Action Button */}
-          <div className="lg:col-span-6 flex flex-col justify-center">
-            <h1 className="font-display text-[3.5rem] sm:text-7xl md:text-8xl lg:text-[5.75rem] xl:text-[6.5rem] font-bold tracking-[-0.035em] text-white leading-[0.92] select-none">
-              <span className="block drop-shadow-[0_12px_30px_rgba(0,0,0,0.85)]">
-                Crafting
-              </span>
-              <span className="block drop-shadow-[0_12px_30px_rgba(0,0,0,0.85)] text-[#FAFAFA]">
-                the Digital
-              </span>
-            </h1>
-
-            {/* Left Primary CTA Pill Button matching reference image */}
-            <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4">
-              <button
-                onClick={onOpenContact}
-                className="group relative inline-flex items-center gap-4 pl-6 pr-2.5 py-2.5 rounded-full bg-white text-[#06170d] font-semibold text-sm sm:text-base tracking-tight shadow-[0_15px_35px_rgba(46,139,60,0.25)] hover:shadow-[0_20px_45px_rgba(56,229,77,0.4)] transition-all duration-300 hover:scale-[1.03] active:scale-[0.98]"
-              >
-                <span className="font-semibold text-[#091f13] group-hover:text-black">
-                  Contact us
-                </span>
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#38E54D] flex items-center justify-center text-[#06170d] group-hover:rotate-45 transition-transform duration-300 shadow-sm shadow-[#38E54D]/70">
-                  <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-                </div>
-              </button>
-
-              <button
-                onClick={() => onNavigate('services')}
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-[#70B85A]/40 text-xs sm:text-sm text-white/80 hover:text-white transition-all backdrop-blur-sm"
-              >
-                <span>Explore Capabilities</span>
-                <ChevronDown className="w-3.5 h-3.5 text-[#70B85A]" />
-              </button>
-            </div>
+        {/* Audio Mute / Unmute Toggle Button */}
+        <button
+          onClick={toggleMute}
+          data-cursor="SOUND"
+          aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+          className="group flex items-center gap-2.5 bg-[#050d08] border-2 border-white shadow-brutal-white px-3.5 py-2 text-xs font-mono font-bold uppercase hover:bg-[#2E8B3C] transition-all"
+        >
+          <div className="w-4 h-4 flex items-center justify-center text-[#38E54D] group-hover:text-white">
+            {isMuted ? (
+              <VolumeX className="w-4 h-4" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-[#38E54D] animate-pulse" />
+            )}
           </div>
-
-          {/* Center visual spacer for particle cloud */}
-          <div className="hidden lg:block lg:col-span-1" />
-
-          {/* Right Column: "on the Dot." + Impact Copy */}
-          <div className="lg:col-span-5 flex flex-col justify-center lg:pl-4">
-            <h2 className="font-display text-[3.5rem] sm:text-7xl md:text-8xl lg:text-[5.75rem] xl:text-[6.5rem] font-bold tracking-[-0.035em] text-white leading-[0.92] select-none">
-              <span className="block drop-shadow-[0_12px_30px_rgba(0,0,0,0.85)]">
-                on
-              </span>
-              <span className="block drop-shadow-[0_12px_30px_rgba(0,0,0,0.85)] text-[#F0FDF4]">
-                the Dot.
-              </span>
-            </h2>
-
-            {/* Right Explanatory Paragraph */}
-            <div className="mt-6 sm:mt-8 max-w-md">
-              <p className="text-sm sm:text-base text-[#D1E7DD]/80 leading-relaxed font-normal tracking-wide">
-                We engineer high-performance bespoke websites and orchestrate monthly social media campaigns that elevate ambitious brands and drive measurable business growth.
-              </p>
-
-              {/* Agency Distinction Pills */}
-              <div className="mt-5 flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
-                <span className="px-2.5 py-1 rounded bg-[#0B1F16] border border-[#2E8B3C]/40 text-[11px] font-mono-tag text-[#A8F5B8]">
-                  Bespoke Web Development
-                </span>
-                <span className="px-2.5 py-1 rounded bg-[#0B1F16] border border-[#2E8B3C]/40 text-[11px] font-mono-tag text-[#A8F5B8]">
-                  Monthly Social Growth
-                </span>
-                <span className="px-2.5 py-1 rounded bg-[#0B1F16] border border-[#DAAF37]/50 text-[11px] font-mono-tag text-[#DAAF37]">
-                  Unified Brand Strategy
-                </span>
-              </div>
-            </div>
+          <span className="text-white group-hover:text-white tracking-wider">
+            {isMuted ? 'MUTE [OFF]' : 'SOUND [ON]'}
+          </span>
+          {/* Sound wave visualizer bars */}
+          <div className="flex items-center gap-0.5 ml-1">
+            <span
+              className={`w-1 bg-[#38E54D] transition-all ${
+                isMuted ? 'h-1.5 opacity-40' : 'h-3.5 animate-pulse'
+              }`}
+            />
+            <span
+              className={`w-1 bg-[#38E54D] transition-all ${
+                isMuted ? 'h-1.5 opacity-40' : 'h-2.5 animate-pulse delay-75'
+              }`}
+            />
+            <span
+              className={`w-1 bg-[#38E54D] transition-all ${
+                isMuted ? 'h-1.5 opacity-40' : 'h-4 animate-pulse delay-150'
+              }`}
+            />
           </div>
-
-        </div>
+        </button>
       </div>
-
-      {/* Center ambient glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-[#2E8B3C]/10 blur-3xl" />
     </section>
   );
 }

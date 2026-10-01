@@ -13,8 +13,8 @@ export default function CustomCursor() {
   const reqRef = useRef(null);
 
   useEffect(() => {
-    // Check if touch device or reduced motion
-    const touchCheck = window.matchMedia('(pointer: coarse)').matches;
+    // Disable on touch devices or when user prefers reduced motion
+    const touchCheck = window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window);
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (touchCheck || reducedMotion) {
       setIsTouch(true);
@@ -27,16 +27,14 @@ export default function CustomCursor() {
       if (!isVisible) setIsVisible(true);
 
       // Check hovered interactive elements for custom labels
-      const target = e.target.closest('[data-cursor], button, a, .card-brutal, .card-brutal-white, input, textarea');
+      const target = e.target.closest('[data-cursor], button, a, .btn-brutal, .card-brutal, input, textarea');
       if (target) {
         setIsHovered(true);
         const customText = target.getAttribute('data-cursor');
         if (customText) {
           setCursorText(customText);
-        } else if (target.tagName === 'BUTTON' || target.tagName === 'A') {
+        } else if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.classList.contains('btn-brutal')) {
           setCursorText('CLICK');
-        } else if (target.classList.contains('card-brutal') || target.classList.contains('card-brutal-white')) {
-          setCursorText('VIEW');
         } else {
           setCursorText('');
         }
@@ -57,10 +55,10 @@ export default function CustomCursor() {
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
 
-    // Follower smooth interpolation (Damped spring lerp)
+    // Smooth follower interpolation using requestAnimationFrame
     let currentX = -100;
     let currentY = -100;
-    const lerpSpeed = 0.18;
+    const lerpSpeed = 0.22;
 
     const loop = () => {
       currentX += (targetRef.current.x - currentX) * lerpSpeed;
@@ -86,32 +84,32 @@ export default function CustomCursor() {
     <>
       {/* Central Sharp Dot */}
       <div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 bg-[#38E54D] border border-[#0B1F16]"
+        className="fixed top-0 left-0 pointer-events-none z-[9999] bg-[#38E54D] border border-[#0B1F16]"
         style={{
           transform: `translate3d(${position.x}px, ${position.y}px, 0) translate(-50%, -50%)`,
-          width: isHovered ? '0px' : '8px',
-          height: isHovered ? '0px' : '8px',
-          transition: 'width 0.15s ease, height 0.15s ease',
+          width: isHovered ? '0px' : '7px',
+          height: isHovered ? '0px' : '7px',
+          transition: 'width 0.12s ease, height 0.12s ease',
         }}
       />
 
-      {/* Brutalist Follower Box with Dynamic Label */}
+      {/* Neo-Brutalist Follower Box with Dynamic Contextual Label */}
       <div
-        className={`fixed top-0 left-0 pointer-events-none z-[9998] flex items-center justify-center font-display font-bold uppercase transition-all duration-150 ${
+        className={`fixed top-0 left-0 pointer-events-none z-[9998] flex items-center justify-center font-mono font-bold uppercase transition-all duration-150 ${
           isHovered
             ? 'bg-[#38E54D] text-[#0B1F16] border-2 border-[#0B1F16] shadow-brutal-sm'
             : 'bg-transparent border-2 border-[#70B85A]/70'
         } ${isClicked ? 'scale-90' : 'scale-100'}`}
         style={{
           transform: `translate3d(${followerPos.x}px, ${followerPos.y}px, 0) translate(-50%, -50%)`,
-          width: isHovered ? (cursorText ? '76px' : '44px') : '32px',
-          height: isHovered ? (cursorText ? '36px' : '44px') : '32px',
+          width: isHovered ? (cursorText ? `${Math.max(64, cursorText.length * 11 + 24)}px` : '42px') : '28px',
+          height: isHovered ? '32px' : '28px',
           fontSize: '11px',
           letterSpacing: '0.08em',
         }}
       >
         {isHovered && cursorText && (
-          <span className="animate-in fade-in zoom-in duration-100 select-none">
+          <span className="select-none tracking-wider">
             {cursorText}
           </span>
         )}
