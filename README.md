@@ -32,11 +32,15 @@ This repository houses the flagship web experience, pairing raw **Neo-Brutalist 
 
 ## ✨ Key Features
 
-### 🎬 1. Full-Viewport Hero Reel & Masked Reveal
-- **Cinema Video Reel**: Embedded high-definition background video loop (`hero-reel.mp4`) with smooth fade-in and hardware-accelerated playback.
-- **Line-by-Line Mask Reveal**: GSAP timeline orchestrating split typography reveals with perspective depth.
-- **Audio Control**: Audio state toggle with interactive mute/unmute control.
-- **Stacking Card Exit**: As the user scrolls, the hero section smoothly scales down, dims, and slides beneath incoming viewport cards.
+### 🎬 1. Scroll-Controlled Hero Reel
+- **Reversible video**: Scrolling scrubs the local `hero-reel.mp4` while the hero stays pinned, then releases into the portfolio. Scroll upward to reverse the reveal.
+- **Branded reveal**: Forest and neon green, gold accents, Anton headlines, a blur/fade transition into “Make your mark”, and a live progress line.
+- **Accessible navigation**: Persistent enquiry and service buttons, a skip-to-work control, native keyboard/touch scrolling, and a static reduced-motion layout. Very short landscape windows use a normal-flow hero.
+- **Media fallback**: The existing `bg_2.png` remains visible if the muted video cannot load. Video audio is intentionally disabled while scrubbing.
+
+The reusable TypeScript component lives at `src/components/ui/scroll-locked-video-hero.tsx`; the site-specific wrapper is `src/components/Hero.jsx` and styles are in `src/index.css`. Adjust `scrubDistance` (default 1800 pixels), `videoSrc`, or `poster` in the wrapper to tune it.
+
+Tailwind v4 is already configured. TypeScript is enabled alongside the existing JSX files; run `npm run typecheck` and `npm run build` to validate. `components.json`, the `@/` alias and `src/lib/utils.ts` provide the shadcn-compatible structure. Reusable UI belongs in `src/components/ui` (`@/components/ui`) so generated components and imports resolve consistently without creating a second root-level component directory.
 
 ### 🖼️ 2. Highlight Projects Full-Bleed Pinned Slider
 - **Pinned Viewport Slider**: High-impact full-bleed showcase cycling through curated case studies.

@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Utensils, Calendar, Building2, ShoppingBag, UserCheck, Rocket, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
+import PandaQuiz from './interactive/PandaQuiz';
+import useReveal from '../hooks/useReveal';
+import '../styles/industries.css';
 
 const industriesData = [
   {
@@ -90,134 +93,59 @@ const industriesData = [
 
 export default function IndustriesSection({ onOpenContact }) {
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const sectionRef = useRef(null);
+  const tabRefs = useRef([]);
   const activeIndustry = industriesData[selectedIdx];
   const Icon = activeIndustry.icon;
+  useReveal(sectionRef);
+
+  const handleKey = (event, index) => {
+    let next = index;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % industriesData.length;
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (index + industriesData.length - 1) % industriesData.length;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = industriesData.length - 1;
+    else return;
+    event.preventDefault();
+    setSelectedIdx(next);
+    tabRefs.current[next]?.focus();
+  };
 
   return (
-    <section id="industries" className="relative z-20 py-24 sm:py-32 px-4 sm:px-8 md:px-12 bg-[#FFFFFF] text-[#0B1F16] border-y-4 border-[#0B1F16] select-none shadow-brutal">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 sm:mb-20">
+    <section id="industries" ref={sectionRef} className="industries-section">
+      <div className="industries-shell">
+        <header className="industries-heading" data-reveal>
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0B1F16] border-2 border-[#0B1F16] text-[#70B85A] font-mono text-xs uppercase tracking-widest font-bold mb-4 shadow-brutal-sm">
-              <span className="w-2 h-2 bg-[#38E54D]" />
-              <span>INDUSTRIES WE SERVE // PRD SECTION 3</span>
-            </div>
-            <h2 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold uppercase tracking-tight text-[#0B1F16] leading-[0.92]">
-              TAILORED TO YOUR <br />
-              <span className="text-[#2E8B3C]">SPECIFIC INDUSTRY</span>
-            </h2>
+            <span className="section-eyebrow">03 / Industries</span>
+            <h2>Shaped for<br /><span>your world.</span></h2>
           </div>
+          <div className="industries-heading__aside"><p>Our services can be tailored to different industries, with the website and social media style adapted to each business.</p></div>
+        </header>
 
-          <p className="max-w-md text-sm sm:text-base text-[#0B1F16]/80 font-body leading-relaxed border-l-4 border-[#2E8B3C] pl-4 font-medium">
-            Our services can be tailored to different industries, with the website and social media style adapted to each business.
-          </p>
-        </div>
-
-        {/* 6 Industry Selection Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-10">
-          {industriesData.map((ind, idx) => {
-            const ItemIcon = ind.icon;
-            const isSelected = selectedIdx === idx;
-            return (
-              <button
-                key={ind.id}
-                onClick={() => setSelectedIdx(idx)}
-                className={`p-4 border-3 text-left transition-all flex flex-col justify-between h-32 select-none ${
-                  isSelected
-                    ? 'bg-[#0B1F16] text-white border-[#0B1F16] shadow-brutal'
-                    : 'bg-[#F8F9F5] text-[#0B1F16] border-[#0B1F16]/30 hover:border-[#0B1F16] hover:bg-white'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <ItemIcon className={`w-5 h-5 ${isSelected ? 'text-[#38E54D]' : 'text-[#2E8B3C]'}`} />
-                  <span className="font-mono text-[10px] font-bold opacity-60">0{idx + 1}</span>
-                </div>
-                <div>
-                  <div className="font-mono text-[10px] uppercase font-bold tracking-wider opacity-75">
-                    {ind.tag}
-                  </div>
-                  <div className="font-display text-sm uppercase leading-tight font-bold">
-                    {ind.name}
-                  </div>
-                </div>
-              </button>
-            );
+        <div className="industry-tabs" role="tablist" aria-label="Explore industries" data-reveal>
+          {industriesData.map((industry, index) => {
+            const ItemIcon = industry.icon;
+            return <button key={industry.id} ref={(element) => { tabRefs.current[index] = element; }} id={`industry-tab-${industry.id}`} role="tab" aria-selected={selectedIdx === index} aria-controls={`industry-panel-${industry.id}`} tabIndex={selectedIdx === index ? 0 : -1} onClick={() => setSelectedIdx(index)} onKeyDown={(event) => handleKey(event, index)} className="industry-tab" data-cursor="EXPLORE"><span><ItemIcon size={20} /><small>0{index + 1}</small></span><strong>{industry.name}</strong><span className="industry-tab__tag">{industry.tag}<ArrowRight size={13} /></span></button>;
           })}
         </div>
 
-        {/* Active Industry Deep-Dive Card */}
-        <div className="p-8 sm:p-12 md:p-14 bg-[#0B1F16] text-white border-4 border-[#0B1F16] shadow-brutal-lg">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Left Column: Requirements & Needs */}
-            <div className="lg:col-span-7">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-[#2E8B3C] text-white border border-white">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="font-mono text-xs uppercase tracking-widest text-[#70B85A] font-bold">
-                    INDUSTRY BLUEPRINT // 0{selectedIdx + 1}
-                  </span>
-                  <h3 className="font-display text-3xl sm:text-4xl text-white uppercase tracking-tight">
-                    {activeIndustry.name}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Typical Digital Needs */}
-              <div className="mt-6 mb-6 p-4 bg-[#050d08] border-2 border-[#70B85A]/40">
-                <span className="font-mono text-xs text-[#DAAF37] font-bold uppercase tracking-wider block mb-1">
-                  TYPICAL DIGITAL NEEDS:
-                </span>
-                <p className="text-sm sm:text-base text-white/90 font-body leading-relaxed">
-                  {activeIndustry.digitalNeeds}
-                </p>
-              </div>
-
-              {/* Features List */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                {activeIndustry.features.map((feat, fIdx) => (
-                  <div key={fIdx} className="flex items-center gap-2.5 text-xs sm:text-sm font-mono text-white/90">
-                    <CheckCircle2 className="w-4 h-4 text-[#38E54D] flex-shrink-0" />
-                    <span>{feat}</span>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => onOpenContact(`Industry Inquiry: ${activeIndustry.name}`)}
-                data-cursor="ENQUIRE"
-                className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-6 sm:px-8 py-3.5 text-xs sm:text-sm font-bold flex items-center gap-3 border-2 border-white hover:bg-white"
-              >
-                <span>ENQUIRE FOR {activeIndustry.name.toUpperCase()}</span>
-                <ArrowRight className="w-4 h-4 stroke-[3]" />
-              </button>
-            </div>
-
-            {/* Right Column: Industry-Specific Social Media Examples */}
-            <div className="lg:col-span-5 p-6 sm:p-8 bg-[#050d08] border-3 border-[#DAAF37]">
-              <div className="flex items-center gap-2 font-mono text-xs text-[#DAAF37] font-bold uppercase tracking-wider mb-4 border-b border-[#DAAF37]/30 pb-2">
-                <Sparkles className="w-4 h-4 text-[#DAAF37]" />
-                <span>INDUSTRY-SPECIFIC SOCIAL MEDIA</span>
-              </div>
-
-              <p className="text-sm sm:text-base text-white/90 leading-relaxed font-body mb-6">
-                {activeIndustry.socialExamples}
-              </p>
-
-              <div className="p-3 bg-[#0B1F16] border border-white/20 font-mono text-xs text-white/70 space-y-1.5">
-                <div className="text-[#38E54D] font-bold uppercase">MONTHLY CADENCE INCLUDES:</div>
-                <div>• Content Planning &amp; Posting Calendar</div>
-                <div>• Branded Social Posts &amp; Carousels</div>
-                <div>• Captions, Hooks &amp; Calls-to-Action</div>
-                <div>• Publishing Support &amp; Monthly Review</div>
-              </div>
-            </div>
+        <div id={`industry-panel-${activeIndustry.id}`} role="tabpanel" aria-labelledby={`industry-tab-${activeIndustry.id}`} tabIndex={0} className="industry-blueprint" key={activeIndustry.id}>
+          <div className="industry-blueprint__main">
+            <div className="industry-blueprint__title"><span className="industry-blueprint__icon"><Icon size={26} strokeWidth={1.2} /></span><div><span className="widget-kicker">A closer look / 0{selectedIdx + 1}</span><h3>{activeIndustry.name}</h3></div></div>
+            <div className="industry-blueprint__needs"><span className="widget-kicker">What your digital presence can do</span><p>{activeIndustry.digitalNeeds}</p></div>
+            <ul className="industry-blueprint__features">{activeIndustry.features.map((feature) => <li key={feature}><CheckCircle2 size={16} /><span>{feature}</span></li>)}</ul>
+            <button onClick={() => onOpenContact(`Industry Inquiry: ${activeIndustry.name}`)} data-cursor="ASK" className="btn-brutal bg-gold text-ink px-5 sm:px-7 py-4 gap-4"><span>Let’s talk about your business</span><ArrowRight size={18} /></button>
           </div>
+          <aside className="industry-blueprint__social">
+            <span className="widget-kicker"><Sparkles size={15} strokeWidth={1.2} /> Social media, in your voice</span>
+            <h4>A feed that<br />feels <span>like you.</span></h4>
+            <p>{activeIndustry.socialExamples}</p>
+            <div className="industry-blueprint__cadence"><strong>A considered monthly rhythm</strong><span>Content Planning &amp; Posting Calendar</span><span>Branded Social Posts &amp; Carousels</span><span>Captions, Hooks &amp; Calls-to-Action</span><span>Publishing Support &amp; Monthly Review</span></div>
+          </aside>
         </div>
-
+        <PandaQuiz onOpenContact={onOpenContact} />
       </div>
     </section>
   );
 }
+

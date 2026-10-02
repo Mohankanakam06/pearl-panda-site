@@ -1,113 +1,143 @@
-import React, { useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Building2, Calendar, Pause, Play, Rocket, ShoppingBag, UserCheck, Utensils } from 'lucide-react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import useReducedMotion from '../hooks/useReducedMotion';
+import useInView from '../hooks/useInView';
+import '../styles/industries.css';
+import '../styles/widgets.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
-const industriesList = [
-  { name: 'CAFÉS & RESTAURANTS', tag: 'HOSPITALITY' },
-  { name: 'EVENTS & EVENT COMPANIES', tag: 'EXPERIENCES' },
-  { name: 'REAL ESTATE', tag: 'DEVELOPMENT' },
-  { name: 'RETAIL & LOCAL BUSINESSES', tag: 'COMMERCE' },
-  { name: 'CREATORS & PERSONAL BRANDS', tag: 'PROFILE BUILDING' },
-  { name: 'STARTUPS & SMALL BUSINESSES', tag: 'LAUNCH & GROWTH' },
+const industries = [
+  { name: 'Cafés & Restaurants', icon: Utensils, tag: 'HOSPITALITY', focus: 'Menus, reservations & food stories' },
+  { name: 'Events & Event Companies', icon: Calendar, tag: 'EXPERIENCES', focus: 'Event showcases & enquiries' },
+  { name: 'Real Estate', icon: Building2, tag: 'DEVELOPMENT', focus: 'Property listings & walkthroughs' },
+  { name: 'Retail & Local Businesses', icon: ShoppingBag, tag: 'COMMERCE', focus: 'Products, offers & new arrivals' },
+  { name: 'Creators & Personal Brands', icon: UserCheck, tag: 'PROFILE BUILDING', focus: 'Portfolios & audience engagement' },
+  { name: 'Startups & Small Businesses', icon: Rocket, tag: 'LAUNCH & GROWTH', focus: 'Company websites & launch content' },
 ];
 
-export default function ClientMarquee() {
-  const marqueeTrackRef = useRef(null);
-  const marqueeWrapperRef = useRef(null);
+export default function ClientMarquee({ onNavigate }) {
+  const viewportRef = useRef(null);
+  const trackRef = useRef(null);
+  const controllerRef = useRef(null);
+  const draggedRef = useRef(false);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(paused);
+  const reduced = useReducedMotion();
+  const visible = useInView(viewportRef);
+  const visibleRef = useRef(visible);
+  pausedRef.current = paused;
+  visibleRef.current = visible;
 
   useEffect(() => {
-    const track = marqueeTrackRef.current;
-    if (!track) return;
-
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    let currentX = 0;
-    let baseSpeed = 1.2;
-    let velocityMultiplier = 1;
-    let direction = -1; // -1 = moving left, 1 = moving right
-
-    const tickerFunc = () => {
-      velocityMultiplier += (1 - velocityMultiplier) * 0.05;
-      currentX += direction * baseSpeed * velocityMultiplier;
-
-      const halfWidth = track.scrollWidth / 2;
-      if (currentX <= -halfWidth) {
-        currentX += halfWidth;
-      } else if (currentX >= 0) {
-        currentX -= halfWidth;
+    if (reduced) return;
+    const viewport = viewportRef.current;
+    const track = trackRef.current;
+    if (!viewport || !track) return;
+    let x = 0;
+    let limit = 0;
+    let speed = -0.35;
+    let velocity = 0;
+    let pointerId = null;
+    let lastPointerX = 0;
+    let initialPointerX = 0;
+    let hover = false;
+    let focus = false;
+    const setX = gsap.quickSetter(track, 'x', 'px');
+    const clamp = () => { x = Math.max(-limit, Math.min(0, x)); setX(x); };
+    const measure = () => { limit = Math.max(0, track.scrollWidth - viewport.clientWidth + 48); clamp(); };
+    const resize = new ResizeObserver(measure);
+    resize.observe(viewport);
+    resize.observe(track);
+    measure();
+    const animate = (_time, deltaTime) => {
+      if (!visibleRef.current || pointerId !== null) return;
+      const delta = Math.min(2, deltaTime / 16.67);
+      if (Math.abs(velocity) > 0.1) { x += velocity * delta; velocity *= Math.pow(0.92, delta); }
+      else if (!pausedRef.current && !hover && !focus && !document.hidden) {
+        x += speed * delta;
+        if (x <= -limit || x >= 0) speed *= -1;
       }
-
-      gsap.set(track, { x: currentX, force3D: true });
+      clamp();
     };
-
-    gsap.ticker.add(tickerFunc);
-
-    const st = ScrollTrigger.create({
-      onUpdate: (self) => {
-        const vel = self.getVelocity();
-        const absVel = Math.abs(vel);
-
-        if (absVel > 30) {
-          const boost = Math.min(6, 1 + absVel / 350);
-          velocityMultiplier = boost;
-
-          if (vel > 0) {
-            direction = -1;
-          } else if (vel < 0) {
-            direction = 1;
-          }
-        }
-      },
-    });
-
+    gsap.ticker.add(animate);
+    const pointerDown = (event) => {
+      if (event.button !== 0) return;
+      pointerId = event.pointerId;
+      initialPointerX = lastPointerX = event.clientX;
+      velocity = 0;
+      draggedRef.current = false;
+    };
+    const pointerMove = (event) => {
+      if (pointerId !== event.pointerId) return;
+      const distance = event.clientX - lastPointerX;
+      if (Math.abs(event.clientX - initialPointerX) > 6) {
+        if (!draggedRef.current) viewport.setPointerCapture(event.pointerId);
+        draggedRef.current = true;
+      }
+      if (draggedRef.current) { x += distance; velocity = distance; clamp(); }
+      lastPointerX = event.clientX;
+    };
+    const pointerUp = (event) => {
+      if (pointerId !== event.pointerId) return;
+      if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+      pointerId = null;
+    };
+    const enter = () => { hover = true; };
+    const leave = () => { hover = false; };
+    const focusIn = (event) => {
+      focus = true;
+      velocity = 0;
+      const item = event.target.closest('.client-wall__tile');
+      if (!item) return;
+      const left = item.offsetLeft + x;
+      if (left < 0) x -= left;
+      else if (left + item.offsetWidth > viewport.clientWidth - 48) x -= left + item.offsetWidth - viewport.clientWidth + 48;
+      clamp();
+    };
+    const focusOut = (event) => { if (!viewport.contains(event.relatedTarget)) focus = false; };
+    controllerRef.current = (direction) => { velocity = direction * -24; speed = direction * -Math.abs(speed); };
+    viewport.addEventListener('pointerdown', pointerDown);
+    viewport.addEventListener('pointermove', pointerMove);
+    viewport.addEventListener('pointerup', pointerUp);
+    viewport.addEventListener('pointercancel', pointerUp);
+    window.addEventListener('pointerup', pointerUp);
+    window.addEventListener('pointercancel', pointerUp);
+    viewport.addEventListener('pointerenter', enter);
+    viewport.addEventListener('pointerleave', leave);
+    viewport.addEventListener('focusin', focusIn);
+    viewport.addEventListener('focusout', focusOut);
     return () => {
-      gsap.ticker.remove(tickerFunc);
-      st.kill();
+      gsap.ticker.remove(animate);
+      resize.disconnect();
+      viewport.removeEventListener('pointerdown', pointerDown);
+      viewport.removeEventListener('pointermove', pointerMove);
+      viewport.removeEventListener('pointerup', pointerUp);
+      viewport.removeEventListener('pointercancel', pointerUp);
+      window.removeEventListener('pointerup', pointerUp);
+      window.removeEventListener('pointercancel', pointerUp);
+      viewport.removeEventListener('pointerenter', enter);
+      viewport.removeEventListener('pointerleave', leave);
+      viewport.removeEventListener('focusin', focusIn);
+      viewport.removeEventListener('focusout', focusOut);
+      gsap.set(track, { clearProps: 'transform' });
+      controllerRef.current = null;
     };
-  }, []);
+  }, [reduced]);
+
+  const navigate = () => {
+    if (draggedRef.current) { draggedRef.current = false; return; }
+    if (onNavigate) onNavigate('industries');
+    else document.getElementById('industries')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' });
+  };
 
   return (
-    <section className="relative z-20 w-full bg-[#FFFFFF] text-[#0B1F16] border-y-4 border-[#0B1F16] py-10 sm:py-14 overflow-hidden select-none shadow-brutal">
-      {/* Top Banner Tag */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-[#0B1F16]/20 pb-4">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 bg-[#2E8B3C]" />
-          <span className="font-mono text-xs font-bold uppercase tracking-widest text-[#0B1F16]">
-            INDUSTRIES WE SERVE // TAILORED DIGITAL SERVICES &amp; ADAPTED STYLES
-          </span>
-        </div>
-        <span className="font-mono text-[11px] font-bold text-[#2E8B3C] uppercase tracking-wider">
-          VELOCITY-SYNCHRONIZED // DIRECTION SENSITIVE
-        </span>
+    <section className="client-wall" aria-labelledby="client-wall-title">
+      <header className="client-wall__heading"><div><span className="widget-kicker">A few of the worlds we work in</span><h2 id="client-wall-title">A place for your point of view.</h2></div><div className="client-wall__controls"><span>Drag to explore</span><button onClick={() => controllerRef.current?.(-1)} aria-label="Previous industries"><ArrowLeft size={16} /></button><button onClick={() => setPaused(!paused)} aria-label={paused ? 'Play industry wall' : 'Pause industry wall'} aria-pressed={paused}>{paused ? <Play size={15} /> : <Pause size={15} />}</button><button onClick={() => controllerRef.current?.(1)} aria-label="Next industries"><ArrowRight size={16} /></button></div></header>
+      <div ref={viewportRef} className="client-wall__viewport" data-cursor="DRAG" aria-label="Industry wall; drag to explore" onKeyDown={(event) => { if (!reduced && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) { event.preventDefault(); controllerRef.current?.(event.key === 'ArrowRight' ? 1 : -1); } }}>
+        <div ref={trackRef} className="client-wall__track">{industries.map(({ name, icon: Icon, tag, focus }, index) => <button key={name} className="client-wall__tile" onClick={navigate} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') draggedRef.current = false; }}><span className="client-wall__tile__top"><Icon size={22} /><span>{tag} / 0{index + 1}</span></span><strong>{name}</strong><span className="client-wall__tile__detail"><b>A tailored approach</b>{focus}</span><ArrowUpRight className="client-wall__tile__arrow" size={20} /></button>)}</div>
       </div>
-
-      {/* Infinite Seamless Marquee Track */}
-      <div ref={marqueeWrapperRef} className="w-full overflow-hidden flex">
-        <div
-          ref={marqueeTrackRef}
-          className="flex items-center whitespace-nowrap will-change-transform py-2"
-        >
-          {[...industriesList, ...industriesList, ...industriesList].map((ind, idx) => (
-            <div
-              key={`${ind.name}-${idx}`}
-              className="inline-flex items-center gap-4 sm:gap-6 px-6 sm:px-10 group cursor-pointer"
-            >
-              <span className="font-display text-3xl sm:text-5xl md:text-6xl tracking-tight uppercase font-bold text-[#0B1F16] group-hover:text-[#2E8B3C] transition-colors">
-                {ind.name}
-              </span>
-              <span className="font-mono text-[10px] sm:text-xs font-bold px-2 py-0.5 bg-[#0B1F16] text-[#FFFFFF] border border-[#0B1F16]">
-                {ind.tag}
-              </span>
-              <span className="text-[#DAAF37] font-display text-2xl sm:text-3xl ml-2">
-                ★
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <p className="client-wall__note">Six industries, with a digital presence shaped around each one.</p>
     </section>
   );
 }
+

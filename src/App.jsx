@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import HighlightProjects from './components/HighlightProjects';
@@ -12,190 +11,104 @@ import IndustriesSection from './components/IndustriesSection';
 import AboutSection from './components/AboutSection';
 import SplitCTA from './components/SplitCTA';
 import Footer from './components/Footer';
-import ContactModal from './components/ContactModal';
 import BottomBar from './components/BottomBar';
 import CustomCursor from './components/CustomCursor';
 import Preloader from './components/Preloader';
 import ScrollProgressBar from './components/ScrollProgressBar';
-
+import LiveStatsStrip from './components/interactive/LiveStatsStrip';
+import ActivityToasts from './components/interactive/ActivityToasts';
+import useReducedMotion from './hooks/useReducedMotion';
+const AskPandaWidget = lazy(() => import('./components/interactive/AskPandaWidget'));
+const ContactModal = lazy(() => import('./components/ContactModal'));
 gsap.registerPlugin(ScrollTrigger);
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      return params.get('nopreloader') !== 'true';
-    }
-    return true;
-  });
+  const [isLoading, setIsLoading] = useState(() => new URLSearchParams(window.location.search).get('nopreloader') !== 'true');
   const [isContactOpen, setIsContactOpen] = useState(false);
   const [selectedService, setSelectedService] = useState('');
   const [activeSection, setActiveSection] = useState('home');
   const lenisRef = useRef(null);
-
-  // Programmatic scroll helper via query param (?scroll=...)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const scrollTarget = params.get('scroll');
-    if (scrollTarget) {
-      const targetY = parseInt(scrollTarget, 10);
-      setTimeout(() => {
-        window.scrollTo(0, targetY);
-      }, 400);
-    }
-  }, []);
-
-  // Initialize Lenis Smooth Momentum Scrolling synchronized with GSAP ScrollTrigger
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      return;
-    }
-
-    const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      smoothWheel: true,
-      touchMultiplier: 1.5,
+  const contactOpenerRef = useRef(null);
+  const reduced = useReducedMotion();
+  const completeLoading = useCallback(() => { setIsLoading(false); ScrollTrigger.refresh(); }, []);
+  const handleOpenContact = useCallback((service = '') => { contactOpenerRef.current = document.activeElement; setSelectedService(service); setIsContactOpen(true); }, []);
+  const closeContact = useCallback(() => {
+    setIsContactOpen(false);
+    requestAnimationFrame(() => {
+      const opener = contactOpenerRef.current;
+      if (opener?.isConnected) opener.focus({ preventScroll: true });
+      else document.querySelector('.ask-panda__launcher')?.focus({ preventScroll: true });
     });
-    lenisRef.current = lenis;
-
-    lenis.on('scroll', ScrollTrigger.update);
-
-    const updateTicker = (time) => {
-      lenis.raf(time * 1000);
-    };
-
-    gsap.ticker.add(updateTicker);
-    gsap.ticker.lagSmoothing(0);
-
-    return () => {
-      gsap.ticker.remove(updateTicker);
-      lenis.destroy();
-    };
   }, []);
 
-  const handleOpenContact = (service = '') => {
-    setSelectedService(service);
-    setIsContactOpen(true);
-  };
-
-  const handleNavigate = (sectionId) => {
-    const id = sectionId.replace('-websites', '').replace('-social', '').replace('-combo', '');
-    setActiveSection(id);
-
-    if (id === 'home') {
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(0, { duration: 1.2 });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      return;
-    }
-
-    const targetEl = document.getElementById(id);
-    if (targetEl) {
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(targetEl, { offset: -60, duration: 1.2 });
-      } else {
-        targetEl.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
-  // Track active section for navigation indicators
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPos = window.scrollY + 250;
-      const projectsEl = document.getElementById('projects');
-      const servicesEl = document.getElementById('services');
-      const industriesEl = document.getElementById('industries');
-      const aboutEl = document.getElementById('about');
+    if (reduced) return;
+    const lenis = new Lenis({ duration: 1.05, easing: (t) => Math.min(1, 1.001 - 2 ** (-10 * t)), smoothWheel: true, touchMultiplier: 1.2 });
+    lenisRef.current = lenis;
+    lenis.on('scroll', ScrollTrigger.update);
+    const tick = (time) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick); gsap.ticker.lagSmoothing(0);
+    return () => { gsap.ticker.remove(tick); lenis.destroy(); lenisRef.current = null; };
+  }, [reduced]);
 
-      if (aboutEl && scrollPos >= aboutEl.offsetTop) {
-        setActiveSection('about');
-      } else if (industriesEl && scrollPos >= industriesEl.offsetTop) {
-        setActiveSection('industries');
-      } else if (servicesEl && scrollPos >= servicesEl.offsetTop) {
-        setActiveSection('services');
-      } else if (projectsEl && scrollPos >= projectsEl.offsetTop) {
-        setActiveSection('projects');
-      } else {
-        setActiveSection('home');
+  useEffect(() => {
+    if (isContactOpen) lenisRef.current?.stop();
+    else lenisRef.current?.start();
+  }, [isContactOpen, reduced]);
+
+  const handleNavigate = useCallback((sectionId) => {
+    const id = sectionId.replace(/-(websites|social|combo)$/, '');
+    const element = document.getElementById(id);
+    if (!element) return;
+    if (lenisRef.current) lenisRef.current.scrollTo(id === 'home' ? 0 : element, { offset: id === 'home' ? 0 : -90, duration: 1.1 });
+    else window.scrollTo({ top: id === 'home' ? 0 : element.getBoundingClientRect().top + window.scrollY - 90, behavior: reduced ? 'instant' : 'smooth' });
+    element.setAttribute('tabindex', '-1');
+    element.focus({ preventScroll: true });
+    setActiveSection(id);
+  }, [reduced]);
+
+  useEffect(() => {
+    let frame;
+    const update = () => {
+      frame = null;
+      let current = 'home';
+      for (const id of ['projects', 'services', 'industries', 'about']) {
+        const element = document.getElementById(id);
+        if (element && element.getBoundingClientRect().top <= 260) current = id;
       }
+      setActiveSection(current);
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true }); update();
+    const targetY = Number(new URLSearchParams(window.location.search).get('scroll'));
+    const timer = targetY > 0 ? setTimeout(() => window.scrollTo(0, targetY), 600) : null;
+    let disposed = false;
+    document.fonts.ready.then(() => { if (!disposed) ScrollTrigger.refresh(); });
+    return () => { disposed = true; clearTimeout(timer); cancelAnimationFrame(frame); window.removeEventListener('scroll', onScroll); };
   }, []);
 
-  return (
-    <div className="relative min-h-screen bg-[#0B1F16] text-white selection:bg-[#38E54D] selection:text-[#0B1F16]">
-      {/* 1. Global Scroll Progress Bar */}
-      <ScrollProgressBar />
-
-      {/* 2. Interactive Neo-Brutalist Custom Cursor with contextual labels */}
-      <CustomCursor />
-
-      {/* 3. Neo-Brutalist Preloader with Block Wipes Curtain Transition */}
-      {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
-
-      {/* 4. Fixed Top Navbar */}
-      <Navbar onOpenContact={() => handleOpenContact('General Inquiry')} />
-
-      {/* 5. PRD Section: Home (Full-viewport video background, masked reveals, audio toggle, stacking transition) */}
-      <Hero
-        onOpenContact={handleOpenContact}
-        onNavigate={handleNavigate}
-      />
-
-      {/* 6. PRD Section: Work / Portfolio (Full-bleed pinned slider, clip-path mask wipes, counter 01/04, prev/next) */}
-      <HighlightProjects
-        onOpenContact={handleOpenContact}
-      />
-
-      {/* 7. PRD Section: Industries Marquee (Velocity-coupled speed & direction-reversal on scroll up, #FFFFFF background) */}
-      <ClientMarquee />
-
-      {/* 8. PRD Section: Services & Website Types (Sticky stacking cards, clip-path image reveals, hover expansion, #0B1F16 background) */}
-      <NumberedServices
-        onOpenContact={handleOpenContact}
-      />
-
-      {/* 9. PRD Section: Industries We Serve (#FFFFFF background with 6 industries deep-dive & social media examples) */}
-      <IndustriesSection
-        onOpenContact={handleOpenContact}
-      />
-
-      {/* 10. PRD Section: How We Work & Brutalism (#2E8B3C emerald background alternating rhythm) */}
-      <AboutSection
-        onOpenContact={handleOpenContact}
-      />
-
-      {/* 11. PRD Section: Package & Pricing / Split CTA (Website Development vs. Monthly Social / Combo, official banner) */}
-      <SplitCTA
-        onOpenContact={handleOpenContact}
-      />
-
-      {/* 12. Footer */}
-      <Footer
-        onOpenContact={() => handleOpenContact('Footer Inquiry')}
-        onNavigate={handleNavigate}
-      />
-
-      {/* 13. Bottom Floating Navigation Dock */}
-      <BottomBar
-        activeSection={activeSection}
-        onNavigate={handleNavigate}
-      />
-
-      {/* 14. Contact & Custom Proposal Modal */}
-      <ContactModal
-        isOpen={isContactOpen}
-        onClose={() => setIsContactOpen(false)}
-        initialService={selectedService}
-      />
+  return <>
+    <div className="site-shell" inert={isContactOpen || undefined}>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <ScrollProgressBar activeSection={activeSection} onNavigate={handleNavigate} />
+      <Navbar onOpenContact={() => handleOpenContact('General Inquiry')} onNavigate={handleNavigate} activeSection={activeSection} />
+      <main id="main" tabIndex={-1}>
+        <Hero onOpenContact={handleOpenContact} onNavigate={handleNavigate} activeSection={activeSection} />
+        <LiveStatsStrip />
+        <HighlightProjects onOpenContact={handleOpenContact} />
+        <ClientMarquee onNavigate={handleNavigate} />
+        <NumberedServices onOpenContact={handleOpenContact} />
+        <IndustriesSection onOpenContact={handleOpenContact} />
+        <AboutSection onOpenContact={handleOpenContact} />
+        <SplitCTA onOpenContact={handleOpenContact} />
+      </main>
+      <Footer onOpenContact={() => handleOpenContact('General Inquiry')} onNavigate={handleNavigate} />
+      <BottomBar activeSection={activeSection} onNavigate={handleNavigate} />
     </div>
-  );
+    <CustomCursor />
+    {!isLoading && <Suspense fallback={null}><AskPandaWidget onOpenContact={handleOpenContact} onNavigate={handleNavigate} isContactOpen={isContactOpen} /></Suspense>}
+    {!isLoading && <ActivityToasts activeSection={activeSection} isContactOpen={isContactOpen} />}
+    {isContactOpen && <Suspense fallback={<div className="modal-loading" role="status">Opening your brief…</div>}><ContactModal isOpen={isContactOpen} onClose={closeContact} initialService={selectedService} /></Suspense>}
+    {isLoading && <Preloader onComplete={completeLoading} />}
+  </>;
 }

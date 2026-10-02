@@ -1,375 +1,108 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ArrowLeft, ArrowRight, ArrowUpRight, Compass, Layers } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, MoveHorizontal } from 'lucide-react';
+import useReducedMotion from '../hooks/useReducedMotion';
+import '../styles/sections.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const projects = [
-  {
-    id: '01',
-    category: '1. BASIC PORTFOLIO WEBSITE',
-    industry: 'CAFÉS & RESTAURANTS',
-    title: 'MENU & RESERVATIONS SHOWCASE',
-    blurb: 'Clean responsive informational website with essential pages, navigation, contact / CTA sections and deployment. Features menu/food showcase, location, and enquiry forms.',
-    image: '/assets/project-1.svg',
-    accent: '#70B85A',
-    deliverables: 'RESPONSIVE PAGES // FOOD SHOWCASE // INSTAGRAM REELS',
-  },
-  {
-    id: '02',
-    category: '2. WEBSITE WITH BACKEND',
-    industry: 'EVENTS & EVENT COMPANIES',
-    title: 'EVENT SHOWCASE & TICKETING',
-    blurb: 'Frontend connected to backend and database for dynamic information, forms and required functionality. Includes event galleries, promotional countdowns, and dynamic enquiry handling.',
-    image: '/assets/project-2.svg',
-    accent: '#DAAF37',
-    deliverables: 'DYNAMIC DATABASE // ENQUIRY FORMS // HYPE PROMOTIONS',
-  },
-  {
-    id: '03',
-    category: '3. FULL BACKEND WEBSITE',
-    industry: 'REAL ESTATE DEVELOPMENTS',
-    title: 'PROPERTY LISTINGS & PORTAL',
-    blurb: 'Complete web application with backend, database, login / authentication and application-specific functionality. Filterable property listings, lead-focused landing pages and investor portal.',
-    image: '/assets/project-3.svg',
-    accent: '#38E54D',
-    deliverables: 'SECURE AUTH // PROPERTY DATABASE // VIRTUAL WALKTHROUGHS',
-  },
-  {
-    id: '04',
-    category: '4. WEBSITE + SOCIAL MEDIA COMBO',
-    industry: 'RETAIL, CREATORS & STARTUPS',
-    title: 'UNIFIED DIGITAL PRESENCE',
-    blurb: 'The combo package combines website development with a monthly social media package. The website is handled as a project, while social media continues as a monthly service with unified brand consistency.',
-    image: '/assets/project-4.svg',
-    accent: '#FFFFFF',
-    deliverables: 'PROJECT BUILD + MONTHLY CREATIVES, COPY & SCHEDULING',
-  },
+  { id: '01', type: 'Basic Portfolio Website', industry: 'Cafés & restaurants', title: 'A place at\nyour table.', specimen: ['The Sunday', 'Table'], caption: 'Good food. Familiar faces. A little time to stay.', specimenLinks: ['Our menu', 'Our story', 'Find a table'], description: 'A welcoming first impression, with the essentials beautifully in place: your menu, your story, your location and a clear way to get in touch.', details: ['Responsive pages', 'Menu & location', 'Reservations or enquiries'], accent: 'light' },
+  { id: '02', type: 'Website with Backend', industry: 'Events & event companies', title: 'Make an\nentrance.', specimen: ['Gather', 'beautifully.'], caption: 'A home for moments worth coming together for.', specimenLinks: ['What’s on', 'Past moments', 'Enquire'], description: 'Give every event a home. Connect your showcase to a backend and database, so galleries, information and enquiries can keep moving with your business.', details: ['Dynamic information', 'Event galleries', 'Enquiry forms'], accent: 'gold' },
+  { id: '03', type: 'Full Backend Website', industry: 'Real estate', title: 'Open the\nnext door.', specimen: ['Space to', 'belong.'], caption: 'Thoughtful places. New possibilities.', specimenLinks: ['Explore places', 'Your account', 'Let’s talk'], description: 'Bring listings, enquiries and customer journeys together in a complete web application, with a database, authentication and the features your business needs.', details: ['Property listings', 'Login & authentication', 'Application features'], accent: 'light' },
+  { id: '04', type: 'Website + Social Media Combo', industry: 'Retail, creators & startups', title: 'One voice.\nEverywhere.', specimen: ['A point', 'of view.'], caption: 'A consistent presence, wherever your audience finds you.', specimenLinks: ['Discover', 'The journal', 'Connect'], description: 'A website to anchor your brand, and a monthly social presence to keep the conversation going. One considered visual direction across both.', details: ['Website as a project', 'Social media each month', 'A shared visual direction'], accent: 'gold' },
 ];
 
 export default function HighlightProjects({ onOpenContact }) {
+  const sectionRef = useRef(null);
+  const viewportRef = useRef(null);
+  const panelsRef = useRef([]);
   const triggerRef = useRef(null);
-  const pinRef = useRef(null);
-  const slidesRef = useRef([]);
-  const imagesRef = useRef([]);
-  const textGroupRef = useRef([]);
-  const timelineRef = useRef(null);
-  const stInstanceRef = useRef(null);
-
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const dragRef = useRef(null);
+  const activeRef = useRef(0);
+  const [current, setCurrent] = useState(0);
+  const reducedMotion = useReducedMotion();
+  const [wide, setWide] = useState(() => window.matchMedia('(min-width: 1000px) and (min-height: 720px)').matches);
+  const pinned = wide && !reducedMotion;
 
   useEffect(() => {
-    const trigger = triggerRef.current;
-    const pin = pinRef.current;
-    if (!trigger || !pin) return;
-
-    const ctx = gsap.context(() => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      if (prefersReducedMotion) {
-        return;
-      }
-
-      // Initial state: slide 0 is visible; slides 1, 2, 3 have bottom clip-path
-      slidesRef.current.forEach((slide, i) => {
-        if (i === 0) {
-          gsap.set(slide, { clipPath: 'inset(0% 0% 0% 0%)', zIndex: 1 });
-        } else {
-          gsap.set(slide, { clipPath: 'inset(100% 0% 0% 0%)', zIndex: i + 1 });
-        }
-      });
-
-      // Images initial scale for counter-parallax
-      imagesRef.current.forEach((img, i) => {
-        gsap.set(img, { scale: i === 0 ? 1 : 1.25, yPercent: i === 0 ? 0 : -10 });
-      });
-
-      // Master scrubbing timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: trigger,
-          start: 'top top',
-          end: `+=${projects.length * 100}%`,
-          pin: pin,
-          scrub: 0.8,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const p = self.progress;
-            const idx = Math.min(
-              projects.length - 1,
-              Math.floor(p * projects.length)
-            );
-            setCurrentIndex(idx);
-          },
-        },
-      });
-
-      timelineRef.current = tl;
-      stInstanceRef.current = tl.scrollTrigger;
-
-      // Animate slides sequentially with clip-path wipe and image parallax
-      for (let i = 1; i < projects.length; i++) {
-        const slide = slidesRef.current[i];
-        const img = imagesRef.current[i];
-        const prevImg = imagesRef.current[i - 1];
-        const textGroup = textGroupRef.current[i];
-
-        // Mask wipe transition: slide wipes over previous from bottom to top
-        tl.to(slide, {
-          clipPath: 'inset(0% 0% 0% 0%)',
-          duration: 1,
-          ease: 'power2.inOut',
-        }, `slide-${i}`)
-        // Image counter-parallax
-        .to(img, {
-          scale: 1,
-          yPercent: 0,
-          duration: 1,
-          ease: 'power2.out',
-        }, `slide-${i}`)
-        // Subtle exit scale on previous image
-        .to(prevImg, {
-          scale: 0.92,
-          opacity: 0.4,
-          duration: 1,
-          ease: 'power2.inOut',
-        }, `slide-${i}`);
-
-        // Staggered text reveal for the active slide
-        if (textGroup) {
-          const elements = textGroup.querySelectorAll('.slide-reveal');
-          tl.fromTo(
-            elements,
-            { yPercent: 80, opacity: 0 },
-            { yPercent: 0, opacity: 1, duration: 0.6, stagger: 0.08, ease: 'power3.out' },
-            `slide-${i}+=0.2`
-          );
-        }
-      }
-    }, triggerRef);
-
-    return () => ctx.revert();
+    const query = window.matchMedia('(min-width: 1000px) and (min-height: 720px)');
+    const update = () => setWide(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
   }, []);
 
-  // Touch swipe support for mobile and tablet devices
   useEffect(() => {
-    let startY = 0;
-    let startX = 0;
+    if (!pinned) return;
+    const context = gsap.context(() => {
+      panelsRef.current.forEach((panel, index) => gsap.set(panel, { clipPath: index ? 'inset(100% 0% 0% 0%)' : 'inset(0% 0% 0% 0%)', zIndex: index + 1 }));
+      const timeline = gsap.timeline({ scrollTrigger: {
+        trigger: sectionRef.current, start: 'top top', end: () => `+=${window.innerHeight * 2.8}`, pin: viewportRef.current,
+        scrub: 0.45, invalidateOnRefresh: true,
+        onUpdate: ({ progress }) => { const next = Math.min(projects.length - 1, Math.round(progress * (projects.length - 1))); if (activeRef.current !== next) { activeRef.current = next; setCurrent(next); } },
+      } });
+      panelsRef.current.slice(1).forEach((panel, i) => {
+        timeline.to(panel, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1, ease: 'none' }, i);
+        timeline.fromTo(panel.querySelector('.project-specimen-title'), { y: 25, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power4.out' }, i);
+      });
+      triggerRef.current = timeline.scrollTrigger;
+    }, sectionRef);
+    ScrollTrigger.refresh();
+    return () => { triggerRef.current = null; context.revert(); };
+  }, [pinned]);
 
-    const handleTouchStart = (e) => {
-      startY = e.touches[0].clientY;
-      startX = e.touches[0].clientX;
-    };
+  const select = (index) => {
+    const next = Math.max(0, Math.min(projects.length - 1, index));
+    const trigger = triggerRef.current;
+    if (trigger) window.scrollTo({ top: trigger.start + (next / (projects.length - 1)) * (trigger.end - trigger.start), behavior: 'instant' });
+    activeRef.current = next;
+    setCurrent(next);
+  };
 
-    const handleTouchEnd = (e) => {
-      const deltaY = e.changedTouches[0].clientY - startY;
-      const deltaX = e.changedTouches[0].clientX - startX;
-
-      if (Math.abs(deltaY) > 40 || Math.abs(deltaX) > 40) {
-        if (deltaY < -40 || deltaX < -40) {
-          if (currentIndex < projects.length - 1) {
-            goToSlide(currentIndex + 1);
-          }
-        } else if (deltaY > 40 || deltaX > 40) {
-          if (currentIndex > 0) {
-            goToSlide(currentIndex - 1);
-          }
-        }
-      }
-    };
-
-    const pinEl = pinRef.current;
-    if (pinEl) {
-      pinEl.addEventListener('touchstart', handleTouchStart, { passive: true });
-      pinEl.addEventListener('touchend', handleTouchEnd, { passive: true });
-    }
-
-    return () => {
-      if (pinEl) {
-        pinEl.removeEventListener('touchstart', handleTouchStart);
-        pinEl.removeEventListener('touchend', handleTouchEnd);
-      }
-    };
-  }, [currentIndex]);
-
-  // Jump to specific slide when arrows are clicked
-  const goToSlide = (targetIndex) => {
-    const clamped = Math.max(0, Math.min(projects.length - 1, targetIndex));
-    if (!stInstanceRef.current) return;
-
-    const st = stInstanceRef.current;
-    const totalScroll = st.end - st.start;
-    const targetScroll = st.start + (clamped / (projects.length - 1)) * totalScroll;
-
-    window.scrollTo({
-      top: targetScroll + 5,
-      behavior: 'smooth',
-    });
+  const onPointerDown = (event) => {
+    if (event.target.closest('button, a') || event.button !== 0) return;
+    dragRef.current = { x: event.clientX, y: event.clientY, scroll: window.scrollY, start: current, dragging: false };
+  };
+  const onPointerMove = (event) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const dx = event.clientX - drag.x;
+    if (!drag.dragging && Math.abs(event.clientY - drag.y) > Math.abs(dx)) return;
+    if (Math.abs(dx) > 12) { drag.dragging = true; event.currentTarget.setPointerCapture(event.pointerId); }
+    const trigger = triggerRef.current;
+    if (drag.dragging && trigger) { const distance = (trigger.end - trigger.start) / (projects.length - 1); window.scrollTo({ top: Math.max(trigger.start, Math.min(trigger.end, drag.scroll - dx / Math.min(window.innerWidth * 0.65, 800) * distance)), behavior: 'instant' }); }
+  };
+  const onPointerUp = (event) => {
+    const drag = dragRef.current;
+    if (drag?.dragging && !pinned && Math.abs(event.clientX - drag.x) > 45) select(drag.start + (event.clientX < drag.x ? 1 : -1));
+    dragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
   return (
-    <section
-      id="projects"
-      ref={triggerRef}
-      className="relative w-full bg-[#050d08] text-white z-20 shadow-[0_-30px_60px_rgba(0,0,0,0.95)]"
-      style={{ minHeight: `${projects.length * 100}vh` }}
-    >
-      {/* Pinned Viewport Container */}
-      <div
-        ref={pinRef}
-        className="w-full h-screen overflow-hidden relative flex flex-col justify-between"
-      >
-        {/* All Project Slides Stacked Absolutely in the same container */}
-        <div className="absolute inset-0 w-full h-full">
+    <section id="projects" ref={sectionRef} className={`projects-section ${pinned ? 'is-pinned' : ''}`} aria-label="Work and portfolio concepts">
+      <div ref={viewportRef} className="projects-viewport section-shell">
+        <header className="section-topline projects-topline"><span className="section-kicker">01 / Possibilities, considered</span><span className="project-disclaimer">Illustrative directions for the businesses we work with</span></header>
+        <div className="projects-stage" tabIndex={0} role="region" aria-roledescription="carousel" aria-label="Explore website concepts with left and right arrow keys" data-cursor="DRAG"
+          onKeyDown={(event) => { if (!event.target.closest('button') && ['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); select(event.key === 'Home' ? 0 : event.key === 'End' ? projects.length - 1 : current + (event.key === 'ArrowRight' ? 1 : -1)); } }}
+          onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={() => { dragRef.current = null; }}>
           {projects.map((project, index) => (
-            <div
-              key={project.id}
-              ref={(el) => (slidesRef.current[index] = el)}
-              data-cursor="VIEW"
-              className="absolute inset-0 w-full h-full overflow-hidden will-change-[clip-path] bg-[#050d08]"
-            >
-              {/* Full-bleed background visual with parallax */}
-              <div
-                ref={(el) => (imagesRef.current[index] = el)}
-                className="absolute inset-0 w-full h-full will-change-transform"
-              >
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  className="w-full h-full object-cover"
-                />
-                {/* Dark Brutalist Gradients for High Readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050d08] via-[#050d08]/60 to-[#050d08]/70" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#050d08]/90 via-[#050d08]/40 to-transparent" />
+            <article key={project.id} ref={(element) => { panelsRef.current[index] = element; }} className={`project-panel ${current === index ? 'is-current' : ''}`} inert={current !== index} aria-hidden={current !== index} aria-label={`${index + 1} of ${projects.length}: ${project.type}`}>
+              <div className="project-copy"><div className="project-meta"><span>{project.industry}</span><span className={`project-type accent-${project.accent}`}>{project.type}</span></div>
+                <h2>{project.title.split('\n').map((line) => <span key={line}>{line}</span>)}</h2><p className="project-description">{project.description}</p>
+                <div className="project-tags">{project.details.map((detail) => <span key={detail}>{detail}</span>)}</div>
+                <button className="project-enquire editorial-link" onClick={() => onOpenContact(project.type)} data-cursor="ASK"><span>Explore this possibility</span><ArrowUpRight size={20} /></button>
               </div>
-
-              {/* Slide Content Overlay */}
-              <div
-                ref={(el) => (textGroupRef.current[index] = el)}
-                className="relative z-10 w-full h-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 flex flex-col justify-center select-none pt-28 sm:pt-32 pb-16"
-              >
-                <div className="max-w-3xl">
-                  {/* Category & Industry Badges */}
-                  <div className="slide-reveal flex items-center flex-wrap gap-3 mb-4 sm:mb-6">
-                    <span className="px-3 py-1 bg-[#0B1F16] border-2 border-white/80 font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-white shadow-brutal-sm">
-                      {project.category}
-                    </span>
-                    <span className="px-3 py-1 bg-[#0B1F16] border-2 border-[#2E8B3C] font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#70B85A] shadow-brutal-sm">
-                      {project.industry}
-                    </span>
-                    <span className="hidden sm:inline-block font-mono text-xs text-white/60">
-                      PEARL PANDA PORTFOLIO
-                    </span>
-                  </div>
-
-                  {/* Huge Project Title */}
-                  <h3 className="slide-reveal font-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl uppercase tracking-tight text-white leading-[0.9] drop-shadow-[0_12px_24px_rgba(0,0,0,0.9)] mb-6">
-                    {project.title}
-                  </h3>
-
-                  {/* Blurb */}
-                  <p className="slide-reveal text-sm sm:text-base md:text-lg text-white/85 max-w-xl leading-relaxed mb-6 font-body font-normal border-l-3 border-[#38E54D] pl-4">
-                    {project.blurb}
-                  </p>
-
-                  {/* Deliverables Badge & Action Button */}
-                  <div className="slide-reveal flex flex-wrap items-center gap-4">
-                    <div className="px-3.5 py-2 bg-[#050d08]/90 border border-[#DAAF37] font-mono text-xs text-[#DAAF37] font-bold">
-                      {project.deliverables}
-                    </div>
-
-                    <button
-                      onClick={() => onOpenContact(`Inquire: ${project.category}`)}
-                      data-cursor="ENQUIRE"
-                      className="btn-brutal bg-[#FFFFFF] text-[#0B1F16] px-5 py-2.5 text-xs sm:text-sm font-bold flex items-center gap-2 hover:bg-[#38E54D]"
-                    >
-                      <span>ENQUIRE THIS TYPE</span>
-                      <ArrowUpRight className="w-4 h-4 stroke-[3]" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <div className="project-specimen" aria-hidden="true"><div className="project-specimen-label"><span>A visual study</span><span>No. {project.id}</span></div><div className="project-specimen-title"><span>{project.specimen[0]}</span><em>{project.specimen[1]}</em></div><p>{project.caption}</p><div className="project-specimen-nav">{project.specimenLinks.map((label) => <span key={label}>{label}</span>)}</div></div>
+            </article>
           ))}
         </div>
-
-        {/* Top Header Floating Status inside pinned container */}
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 pt-20 sm:pt-24 flex items-center justify-between pointer-events-none">
-          <div className="flex items-center gap-2 bg-[#050d08] border-2 border-[#2E8B3C] px-3 py-1 shadow-brutal-sm pointer-events-auto">
-            <span className="w-2 h-2 bg-[#38E54D] animate-pulse" />
-            <span className="font-mono text-xs uppercase tracking-widest text-[#70B85A] font-bold">
-              WORK &amp; PORTFOLIO // SELECTED DIGITAL SERVICES
-            </span>
-          </div>
-
-          {/* Large Real-Time Numerical Counter (01 / 04) */}
-          <div className="bg-[#050d08] border-3 border-white shadow-brutal-white px-4 py-2 font-display text-xl sm:text-2xl text-white pointer-events-auto tracking-wider flex items-center gap-2">
-            <span className="text-[#38E54D]">
-              {(currentIndex + 1).toString().padStart(2, '0')}
-            </span>
-            <span className="text-white/40">/</span>
-            <span>{projects.length.toString().padStart(2, '0')}</span>
-          </div>
-        </div>
-
-        {/* Bottom Navigation Dock & Progress Indicator */}
-        <div className="relative z-30 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 pb-8 sm:pb-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-auto">
-          {/* Segmented Progress Bar */}
-          <div className="flex items-center gap-2 w-full sm:w-64">
-            {projects.map((p, idx) => (
-              <button
-                key={p.id}
-                onClick={() => goToSlide(idx)}
-                aria-label={`Jump to work ${idx + 1}`}
-                className="h-2 flex-1 transition-all duration-300 relative group overflow-hidden border border-white/20"
-                style={{
-                  backgroundColor: idx <= currentIndex ? '#38E54D' : '#0B1F16',
-                  borderColor: idx === currentIndex ? '#FFFFFF' : 'rgba(255,255,255,0.2)',
-                }}
-              >
-                <span className="sr-only">Slide {idx + 1}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Prev / Next Brutalist Navigation Controls */}
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-block font-mono text-[11px] text-white/50 uppercase tracking-widest mr-2">
-              CLICK OR SCROLL TO SCRUB WORK
-            </span>
-
-            <button
-              onClick={() => goToSlide(currentIndex - 1)}
-              disabled={currentIndex === 0}
-              aria-label="Previous work"
-              data-cursor="PREV"
-              className={`p-2.5 sm:p-3 bg-[#0B1F16] border-2 border-white shadow-brutal-sm text-white transition-all ${
-                currentIndex === 0
-                  ? 'opacity-30 cursor-not-allowed'
-                  : 'hover:bg-[#2E8B3C] hover:translate-x-[-2px] hover:translate-y-[-2px]'
-              }`}
-            >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-            </button>
-
-            <button
-              onClick={() => goToSlide(currentIndex + 1)}
-              disabled={currentIndex === projects.length - 1}
-              aria-label="Next work"
-              data-cursor="NEXT"
-              className={`p-2.5 sm:p-3 bg-[#38E54D] border-2 border-white shadow-brutal-sm text-[#0B1F16] font-bold transition-all ${
-                currentIndex === projects.length - 1
-                  ? 'opacity-30 cursor-not-allowed bg-white/40'
-                  : 'hover:bg-[#48f060] hover:translate-x-[-2px] hover:translate-y-[-2px]'
-              }`}
-            >
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[3]" />
-            </button>
-          </div>
-        </div>
+        <footer className="projects-controls"><div className="project-index" aria-live="polite" aria-atomic="true"><span>{String(current + 1).padStart(2, '0')}</span><span>/ 04</span></div>
+          <div className="project-rail" role="group" aria-label="Choose a website concept">{projects.map((project, index) => <button key={project.id} aria-label={`Show ${project.type}`} aria-pressed={current === index} className={current === index ? 'is-current' : ''} onClick={() => select(index)}><span>{project.id}</span><i /></button>)}</div>
+          <span className="project-drag-hint"><MoveHorizontal size={15} />Drag, scroll, or use the arrows</span>
+          <div className="project-arrows"><button aria-label="Previous concept" onClick={() => select(current - 1)} disabled={current === 0}><ArrowLeft size={20} /></button><button aria-label="Next concept" onClick={() => select(current + 1)} disabled={current === projects.length - 1}><ArrowRight size={20} /></button></div>
+        </footer>
       </div>
     </section>
   );

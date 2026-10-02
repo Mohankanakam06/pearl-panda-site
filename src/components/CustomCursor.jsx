@@ -1,119 +1,45 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import useReducedMotion from '../hooks/useReducedMotion';
+import useMagnetic from '../hooks/useMagnetic';
 
 export default function CustomCursor() {
-  const [position, setPosition] = useState({ x: -100, y: -100 });
-  const [followerPos, setFollowerPos] = useState({ x: -100, y: -100 });
-  const [cursorText, setCursorText] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
-
-  const targetRef = useRef({ x: -100, y: -100 });
-  const reqRef = useRef(null);
-
+  const cursorRef = useRef(null);
+  const labelRef = useRef(null);
+  const stampRef = useRef(null);
+  const reduced = useReducedMotion();
+  useMagnetic();
   useEffect(() => {
-    // Disable on touch devices or when user prefers reduced motion
-    const touchCheck = window.matchMedia('(pointer: coarse)').matches || ('ontouchstart' in window);
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (touchCheck || reducedMotion) {
-      setIsTouch(true);
-      return;
-    }
-
-    const onMouseMove = (e) => {
-      targetRef.current = { x: e.clientX, y: e.clientY };
-      setPosition({ x: e.clientX, y: e.clientY });
-      if (!isVisible) setIsVisible(true);
-
-      // Check hovered interactive elements for custom labels
-      const target = e.target.closest('[data-cursor], button, a, .btn-brutal, .card-brutal, input, textarea');
-      if (target) {
-        setIsHovered(true);
-        const customText = target.getAttribute('data-cursor');
-        if (customText) {
-          setCursorText(customText);
-        } else if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.classList.contains('btn-brutal')) {
-          setCursorText('CLICK');
-        } else {
-          setCursorText('');
-        }
-      } else {
-        setIsHovered(false);
-        setCursorText('');
-      }
+    if (reduced || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const cursor = cursorRef.current;
+    const stamp = stampRef.current;
+    const context = gsap.context(() => gsap.set(cursor, { x: -100, y: -100 }));
+    const x = gsap.quickTo(cursor, 'x', { duration: .18, ease: 'power3.out' });
+    const y = gsap.quickTo(cursor, 'y', { duration: .18, ease: 'power3.out' });
+    let stampAnimation;
+    const move = (event) => { x(event.clientX + 14); y(event.clientY + 14); cursor.style.opacity = '1'; };
+    const over = (event) => {
+      const target = event.target.closest?.('[data-cursor],button,a,input,textarea');
+      const label = target?.dataset.cursor || (target?.matches('input,textarea') ? 'TYPE' : target ? 'OPEN' : '');
+      labelRef.current.textContent = label;
+      cursor.dataset.active = String(Boolean(label));
     };
-
-    const onMouseDown = () => setIsClicked(true);
-    const onMouseUp = () => setIsClicked(false);
-    const onMouseLeave = () => setIsVisible(false);
-    const onMouseEnter = () => setIsVisible(true);
-
-    window.addEventListener('mousemove', onMouseMove, { passive: true });
-    window.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('mouseleave', onMouseLeave);
-    document.addEventListener('mouseenter', onMouseEnter);
-
-    // Smooth follower interpolation using requestAnimationFrame
-    let currentX = -100;
-    let currentY = -100;
-    const lerpSpeed = 0.22;
-
-    const loop = () => {
-      currentX += (targetRef.current.x - currentX) * lerpSpeed;
-      currentY += (targetRef.current.y - currentY) * lerpSpeed;
-      setFollowerPos({ x: currentX, y: currentY });
-      reqRef.current = requestAnimationFrame(loop);
+    const leave = () => { cursor.style.opacity = '0'; };
+    const press = (event) => {
+      stampAnimation?.kill();
+      gsap.set(stamp, { x: event.clientX - 16, y: event.clientY - 16, scale: .5, opacity: .8, rotation: -12 });
+      stampAnimation = gsap.to(stamp, { scale: 2, opacity: 0, rotation: 0, duration: .4, ease: 'power3.out' });
     };
-    reqRef.current = requestAnimationFrame(loop);
-
+    document.addEventListener('pointermove', move, { passive: true });
+    document.addEventListener('pointerover', over);
+    document.addEventListener('pointerdown', press);
+    document.addEventListener('pointerleave', leave);
+    window.addEventListener('blur', leave);
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mousedown', onMouseDown);
-      window.removeEventListener('mouseup', onMouseUp);
-      document.removeEventListener('mouseleave', onMouseLeave);
-      document.removeEventListener('mouseenter', onMouseEnter);
-      if (reqRef.current) cancelAnimationFrame(reqRef.current);
+      x.tween.kill(); y.tween.kill(); stampAnimation?.kill(); context.revert();
+      document.removeEventListener('pointermove', move); document.removeEventListener('pointerover', over);
+      document.removeEventListener('pointerdown', press); document.removeEventListener('pointerleave', leave); window.removeEventListener('blur', leave);
     };
-  }, [isVisible]);
-
-  if (isTouch || !isVisible) return null;
-
-  return (
-    <>
-      {/* Central Sharp Dot */}
-      <div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] bg-[#38E54D] border border-[#0B1F16]"
-        style={{
-          transform: `translate3d(${position.x}px, ${position.y}px, 0) translate(-50%, -50%)`,
-          width: isHovered ? '0px' : '7px',
-          height: isHovered ? '0px' : '7px',
-          transition: 'width 0.12s ease, height 0.12s ease',
-        }}
-      />
-
-      {/* Neo-Brutalist Follower Box with Dynamic Contextual Label */}
-      <div
-        className={`fixed top-0 left-0 pointer-events-none z-[9998] flex items-center justify-center font-mono font-bold uppercase transition-all duration-150 ${
-          isHovered
-            ? 'bg-[#38E54D] text-[#0B1F16] border-2 border-[#0B1F16] shadow-brutal-sm'
-            : 'bg-transparent border-2 border-[#70B85A]/70'
-        } ${isClicked ? 'scale-90' : 'scale-100'}`}
-        style={{
-          transform: `translate3d(${followerPos.x}px, ${followerPos.y}px, 0) translate(-50%, -50%)`,
-          width: isHovered ? (cursorText ? `${Math.max(64, cursorText.length * 11 + 24)}px` : '42px') : '28px',
-          height: isHovered ? '32px' : '28px',
-          fontSize: '11px',
-          letterSpacing: '0.08em',
-        }}
-      >
-        {isHovered && cursorText && (
-          <span className="select-none tracking-wider">
-            {cursorText}
-          </span>
-        )}
-      </div>
-    </>
-  );
+  }, [reduced]);
+  return <div className="studio-cursor" aria-hidden="true"><div ref={cursorRef} className="studio-cursor__label"><span ref={labelRef} /></div><div ref={stampRef} className="studio-cursor__stamp" /></div>;
 }

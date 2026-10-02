@@ -1,24 +1,29 @@
-import React from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import PandaLogo from './PandaLogo';
+import PandaParade from './interactive/PandaParade';
+import '../styles/chrome.css';
 
-export default function Navbar({ onOpenContact }) {
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 md:px-12 py-4 transition-all duration-300">
-      <div className="max-w-7xl mx-auto flex items-center justify-between bg-[#0B1F16]/90 backdrop-blur-sm border-3 border-[#FFFFFF] shadow-brutal-white px-5 py-3">
-        {/* Brand Logo & Name */}
-        <PandaLogo />
-
-        {/* Top Right Action Button - Brutalist Pill/Box */}
-        <button
-          onClick={onOpenContact}
-          data-cursor="CONTACT"
-          className="btn-brutal bg-[#38E54D] text-[#0B1F16] hover:bg-[#48f060] px-4 sm:px-6 py-2 text-xs sm:text-sm flex items-center gap-2 border-2 border-[#0B1F16]"
-        >
-          <span>INITIATE BRIEF</span>
-          <ArrowUpRight className="w-4 h-4 stroke-[3]" />
-        </button>
-      </div>
-    </header>
-  );
+export default function Navbar({ onOpenContact, onNavigate, activeSection = 'home' }) {
+  const clicks = useRef({ count: 0, last: 0 });
+  const [parade, setParade] = useState(false);
+  const finishParade = useCallback(() => setParade(false), []);
+  const handleLogo = () => {
+    const now = Date.now();
+    clicks.current.count = now - clicks.current.last < 1800 ? clicks.current.count + 1 : 1;
+    clicks.current.last = now;
+    if (clicks.current.count === 5) { setParade(true); clicks.current.count = 0; }
+    onNavigate?.('home');
+  };
+  return <>
+    <header className="studio-navbar"><div className="studio-navbar__inner">
+      <button className="studio-navbar__brand" onClick={handleLogo} aria-label="Pearl Panda — back to home" data-cursor="HOME"><PandaLogo /></button>
+      <nav className="studio-navbar__links" aria-label="Primary navigation">
+        {[['projects', 'Our work'], ['services', 'What we do']].map(([id, label]) => <button key={id} onClick={() => onNavigate?.(id)} aria-current={activeSection === id ? 'location' : undefined} className="nav-ticker"><span><span>{label} ↗</span><span aria-hidden="true">{label} ↗</span></span></button>)}
+      </nav>
+      <button onClick={() => onOpenContact()} data-cursor="LET’S TALK" data-magnetic className="btn-brutal studio-navbar__cta"><span>Let’s talk</span><ArrowUpRight size={18} aria-hidden="true" /></button>
+    </div></header>
+    {parade && <PandaParade onComplete={finishParade} />}
+  </>;
 }
+

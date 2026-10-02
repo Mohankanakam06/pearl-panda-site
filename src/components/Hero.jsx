@@ -1,294 +1,77 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { ArrowDown, ArrowUpRight } from 'lucide-react';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Volume2, VolumeX, ArrowDown, ArrowUpRight, Sparkles } from 'lucide-react';
+import useReducedMotion from '../hooks/useReducedMotion';
+import useScrollVelocity from '../hooks/useScrollVelocity';
+import PandaFace from './interactive/PandaFace';
+import LanguageCycler from './interactive/LanguageCycler';
+import SplitText from './SplitText';
+import { motion } from '../lib/motion';
+import '../styles/hero.css';
 
-gsap.registerPlugin(ScrollTrigger);
+const clamp = (value) => Math.max(0, Math.min(1, value));
+export default function Hero({ onOpenContact, onNavigate, activeSection = 'home' }) {
+  const ref = useRef(null);
+  const titleRef = useRef(null);
+  const reduced = useReducedMotion();
+  useScrollVelocity(titleRef);
 
-export default function Hero({ onOpenContact, onNavigate }) {
-  const heroRef = useRef(null);
-  const heroContentRef = useRef(null);
-  const videoRef = useRef(null);
-  const line1Ref = useRef(null);
-  const line2Ref = useRef(null);
-  const line3Ref = useRef(null);
-  const tagRef = useRef(null);
-  const subtextRef = useRef(null);
-  const ctaGroupRef = useRef(null);
-  const scrollHintRef = useRef(null);
-
-  const [isMuted, setIsMuted] = useState(true);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-
-  // Line-by-line masked reveal on mount
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+    const context = gsap.context(() => {
+      gsap.fromTo('[data-hero-line]', { yPercent: 108 }, { yPercent: 0, stagger: .1, duration: 1, ease: motion.ease.reveal, delay: .15 });
+    }, ref);
+    return () => context.revert();
+  }, [reduced]);
 
-      if (prefersReducedMotion) {
-        gsap.set([line1Ref.current, line2Ref.current, line3Ref.current, tagRef.current, subtextRef.current, ctaGroupRef.current, scrollHintRef.current], {
-          yPercent: 0,
-          opacity: 1,
-        });
-        return;
-      }
+  useEffect(() => {
+    const section = ref.current;
+    let frame = 0;
+    const render = () => {
+      frame = 0;
+      const distance = section.offsetHeight - section.firstElementChild.offsetHeight;
+      const p = reduced || distance <= 0 ? 0 : clamp(-section.getBoundingClientRect().top / distance);
+      const intro = 1 - clamp((p - .1) / .32);
+      const closing = clamp((p - .53) / .3);
+      section.style.setProperty('--hero-progress', p);
+      section.style.setProperty('--hero-intro', intro);
+      section.style.setProperty('--hero-intro-y', `${(1 - intro) * -22}px`);
+      section.style.setProperty('--hero-closing', closing);
+      section.style.setProperty('--hero-closing-y', `${(1 - closing) * 22}px`);
+      section.querySelector('.hero-intro')?.setAttribute('aria-hidden', String(intro < .05));
+      section.querySelector('.hero-closing')?.setAttribute('aria-hidden', String(closing < .05));
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(render); };
+    const resize = new ResizeObserver(schedule);
+    resize.observe(section); resize.observe(section.firstElementChild);
+    window.addEventListener('scroll', schedule, { passive: true });
+    render();
+    return () => { cancelAnimationFrame(frame); resize.disconnect(); window.removeEventListener('scroll', schedule); };
+  }, [reduced]);
 
-      // Initial state: hidden beneath clipping masks
-      gsap.set([line1Ref.current, line2Ref.current, line3Ref.current], {
-        yPercent: 125,
-        opacity: 0,
-      });
-      gsap.set([tagRef.current, subtextRef.current, ctaGroupRef.current, scrollHintRef.current], {
-        opacity: 0,
-        y: 24,
-      });
-
-      const tl = gsap.timeline({ delay: 0.2 });
-
-      // Staggered masked reveal of huge headline lines
-      tl.to([line1Ref.current, line2Ref.current, line3Ref.current], {
-        yPercent: 0,
-        opacity: 1,
-        duration: 1.15,
-        stagger: 0.16,
-        ease: 'power4.out',
-      })
-      .to(tagRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power3.out',
-      }, '-=0.8')
-      .to([subtextRef.current, ctaGroupRef.current], {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        stagger: 0.12,
-        ease: 'power3.out',
-      }, '-=0.6')
-      .to(scrollHintRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: 'power2.out',
-      }, '-=0.4');
-
-      // Stacking-card transition on scroll:
-      // Hero scales down slightly (0.94), dims opacity and slides back while the next section stacks over it
-      gsap.to(heroContentRef.current, {
-        scale: 0.94,
-        opacity: 0.25,
-        yPercent: 12,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: true,
-          invalidateOnRefresh: true,
-        },
-      });
-
-      // Video background subtle zoom & dim on scroll
-      if (videoRef.current) {
-        gsap.to(videoRef.current, {
-          scale: 1.12,
-          opacity: 0.2,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true,
-          },
-        });
-      }
-
-      // Scroll hint fades out immediately upon initiating scroll
-      if (scrollHintRef.current) {
-        gsap.to(scrollHintRef.current, {
-          opacity: 0,
-          y: -20,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: 'top top+=50',
-            end: 'top top+=200',
-            scrub: true,
-          },
-        });
-      }
-    }, heroRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  const toggleMute = () => {
-    if (videoRef.current) {
-      const nextMuted = !videoRef.current.muted;
-      videoRef.current.muted = nextMuted;
-      setIsMuted(nextMuted);
-    }
-  };
-
-  return (
-    <section
-      id="home"
-      ref={heroRef}
-      className="relative w-full h-screen min-h-[700px] overflow-hidden bg-[#0B1F16] text-white flex flex-col justify-between select-none"
-      style={{ zIndex: 1 }}
-    >
-      {/* 1. Full-Viewport Looping Background Video */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <video
-          ref={videoRef}
-          src="/hero-reel.mp4"
-          poster="/assets/project-1.svg"
-          autoPlay
-          loop
-          muted={isMuted}
-          playsInline
-          onLoadedData={() => setIsVideoLoaded(true)}
-          className={`w-full h-full object-cover transition-opacity duration-1000 ${
-            isVideoLoaded ? 'opacity-40' : 'opacity-20'
-          }`}
-        />
-        {/* Brutalist Neo-Green Atmosphere Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B1F16] via-[#0B1F16]/65 to-[#0B1F16]/85" />
-        <div className="absolute inset-0 bg-[radial-gradient(#2E8B3C_1px,transparent_1px)] [background-size:32px_32px] opacity-15" />
+  return <section ref={ref} id="home" className="studio-hero" aria-label="Pearl Panda digital studio">
+    <div className="studio-hero__stage">
+      <div className="hero-edition studio-wrap"><span>Websites, social & everything between.</span><span>Independent thinking. Thoughtful making.</span></div>
+      <div className="hero-layout studio-wrap">
+        <div className="hero-copy">
+          <div className="hero-eyebrow"><SplitText>A digital studio for businesses with a point of view</SplitText></div>
+          <div className="hero-story">
+            <div className="hero-intro">
+              <h1 ref={titleRef}><span className="hero-mask"><span data-hero-line>A considered</span></span><span className="hero-mask hero-accent"><span data-hero-line><em>presence.</em></span></span><span className="hero-mask"><span data-hero-line>A lasting impression.</span></span></h1>
+              <p>We make websites and social media feel like they belong together. Clear in purpose, thoughtful in detail, and unmistakably yours.</p>
+            </div>
+            <div className="hero-closing" aria-hidden="true"><span className="hero-small">Good work begins with understanding.</span><h2>Made to feel<br /><em>like you.</em></h2><p>From the first page to the next post, we help your business show up with a little more clarity, character and confidence.</p></div>
+          </div>
+          <div className="hero-actions"><button className="hero-primary" data-magnetic data-cursor="HELLO" onClick={() => onOpenContact('General Inquiry')}>Let’s make something <ArrowUpRight size={18} /></button><button className="hero-text-link" onClick={() => onNavigate('services')}>Explore our services <ArrowUpRight size={15} /></button></div>
+        </div>
+        <aside className="hero-companion" aria-label="Meet Panda, your studio companion">
+          <div className="hero-companion__label">A little character goes a long way.</div>
+          <div className="hero-face-stage"><PandaFace activeSection={activeSection} /></div>
+          <div className="hero-greeting"><LanguageCycler /><p>Different languages.<br />The same warm welcome.</p></div>
+        </aside>
       </div>
-
-      {/* 2. Top Header Spacer for Fixed Nav */}
-      <div className="relative z-10 w-full pt-24 sm:pt-28" />
-
-      {/* 3. Hero Core Content (Scales down on scroll) */}
-      <div
-        ref={heroContentRef}
-        className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 my-auto will-change-transform"
-      >
-        {/* Category Tag from PRD */}
-        <div ref={tagRef} className="mb-6 flex items-center gap-3">
-          <div className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-[#050d08] border-2 border-[#2E8B3C] shadow-brutal-sm text-[#70B85A] font-mono text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-            <span className="w-2 h-2 bg-[#38E54D] animate-ping" />
-            <span>PEARL PANDA // WEBSITES • SOCIAL MEDIA • DIGITAL PRESENCE</span>
-          </div>
-        </div>
-
-        {/* Huge Headline Split into Masked Overflow Containers */}
-        <div className="font-display uppercase text-white tracking-tight leading-[0.88] text-[12vw] sm:text-[10vw] md:text-[8.5vw] lg:text-[7.2rem] xl:text-[8.2rem]">
-          {/* Line 1 */}
-          <div className="overflow-hidden pb-1 sm:pb-2">
-            <div ref={line1Ref} className="will-change-transform drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
-              WEBSITES &amp;
-            </div>
-          </div>
-
-          {/* Line 2 */}
-          <div className="overflow-hidden pb-1 sm:pb-2">
-            <div ref={line2Ref} className="will-change-transform text-[#38E54D] drop-shadow-[0_10px_25px_rgba(46,139,60,0.4)]">
-              SOCIAL MEDIA
-            </div>
-          </div>
-
-          {/* Line 3 */}
-          <div className="overflow-hidden pb-1 sm:pb-2 flex items-center gap-4 flex-wrap">
-            <div ref={line3Ref} className="will-change-transform text-[#FAFAFA] drop-shadow-[0_10px_25px_rgba(0,0,0,0.8)]">
-              FOR MODERN BUSINESSES.
-            </div>
-          </div>
-        </div>
-
-        {/* Subtext and Direct PRD-based Actions */}
-        <div className="mt-8 sm:mt-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
-          <div ref={subtextRef} className="lg:col-span-7">
-            <p className="text-white/85 font-body text-base sm:text-lg md:text-xl font-medium max-w-2xl leading-relaxed border-l-4 border-[#DAAF37] pl-4">
-              Pearl Panda provides modern digital services for businesses and organizations that want a stronger online presence. Our current services focus on website development and monthly social media management.
-            </p>
-            <div className="mt-3 font-mono text-xs text-[#DAAF37] tracking-wider pl-5 uppercase font-bold">
-              Clean. Friendly. Modern. Memorable.
-            </div>
-          </div>
-
-          <div ref={ctaGroupRef} className="lg:col-span-5 flex flex-wrap items-center gap-4 lg:justify-end">
-            <button
-              onClick={() => onOpenContact('General Inquiry')}
-              data-cursor="ENQUIRE"
-              className="btn-brutal bg-[#38E54D] text-[#0B1F16] px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold flex items-center gap-3 border-3 border-[#FFFFFF] shadow-brutal-white hover:bg-[#48f060]"
-            >
-              <span>ENQUIRE SERVICES</span>
-              <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />
-            </button>
-
-            <button
-              onClick={() => onNavigate('services')}
-              data-cursor="VIEW"
-              className="btn-brutal bg-[#050d08] text-white px-5 sm:px-6 py-3.5 sm:py-4 text-xs sm:text-sm font-mono border-2 border-white/40 hover:border-[#38E54D] hover:text-[#38E54D]"
-            >
-              WEBSITE TYPES
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. Bottom Utilities: Scroll Hint (Left) & Audio Toggle (Right) */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-10 md:px-14 pb-20 sm:pb-24 flex items-center justify-between pointer-events-auto">
-        {/* Scroll Hint */}
-        <div
-          ref={scrollHintRef}
-          onClick={() => onNavigate('projects')}
-          data-cursor="SCROLL"
-          className="cursor-pointer group flex items-center gap-3 bg-[#050d08]/90 border-2 border-[#70B85A] px-3.5 py-2 shadow-brutal-sm hover:border-[#38E54D] transition-colors"
-        >
-          <div className="w-5 h-5 bg-[#38E54D] text-[#0B1F16] flex items-center justify-center font-bold animate-bounce">
-            <ArrowDown className="w-3.5 h-3.5 stroke-[3]" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-mono text-[10px] tracking-widest uppercase text-[#A8F5B8] font-bold">
-              SCROLL TO EXPLORE WORK
-            </span>
-            <span className="font-mono text-[9px] text-white/60">
-              WEBSITES • SOCIAL MEDIA • COMBO
-            </span>
-          </div>
-        </div>
-
-        {/* Audio Mute / Unmute Toggle Button */}
-        <button
-          onClick={toggleMute}
-          data-cursor="SOUND"
-          aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
-          className="group flex items-center gap-2.5 bg-[#050d08] border-2 border-white shadow-brutal-white px-3.5 py-2 text-xs font-mono font-bold uppercase hover:bg-[#2E8B3C] transition-all"
-        >
-          <div className="w-4 h-4 flex items-center justify-center text-[#38E54D] group-hover:text-white">
-            {isMuted ? (
-              <VolumeX className="w-4 h-4" />
-            ) : (
-              <Volume2 className="w-4 h-4 text-[#38E54D] animate-pulse" />
-            )}
-          </div>
-          <span className="text-white group-hover:text-white tracking-wider">
-            {isMuted ? 'MUTE [OFF]' : 'SOUND [ON]'}
-          </span>
-          {/* Sound wave visualizer bars */}
-          <div className="flex items-center gap-0.5 ml-1">
-            <span
-              className={`w-1 bg-[#38E54D] transition-all ${
-                isMuted ? 'h-1.5 opacity-40' : 'h-3.5 animate-pulse'
-              }`}
-            />
-            <span
-              className={`w-1 bg-[#38E54D] transition-all ${
-                isMuted ? 'h-1.5 opacity-40' : 'h-2.5 animate-pulse delay-75'
-              }`}
-            />
-            <span
-              className={`w-1 bg-[#38E54D] transition-all ${
-                isMuted ? 'h-1.5 opacity-40' : 'h-4 animate-pulse delay-150'
-              }`}
-            />
-          </div>
-        </button>
-      </div>
-    </section>
-  );
+      <div className="hero-controls studio-wrap"><span>Thoughtfully built. Naturally you.</span><button onClick={() => onNavigate('projects')} className="hero-skip">A few possibilities <ArrowDown size={15} /></button><span className="hero-page-number">01 — Introduction</span></div>
+      <div className="hero-progress" aria-hidden="true"><span /></div>
+    </div>
+  </section>;
 }

@@ -1,28 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
-export default function ScrollProgressBar() {
-  const [scrollProgress, setScrollProgress] = useState(0);
+const sections = [['home', 'Home'], ['projects', 'Work'], ['services', 'Services'], ['industries', 'Industries'], ['about', 'About']];
 
+export default function ScrollProgressBar({ activeSection = 'home', onNavigate }) {
+  const fillRef = useRef(null);
   useEffect(() => {
-    const handleScroll = () => {
-      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
-      if (totalScroll > 0) {
-        const progress = Math.min(100, Math.max(0, (window.scrollY / totalScroll) * 100));
-        setScrollProgress(progress);
-      }
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      if (fillRef.current) fillRef.current.style.transform = `scaleX(${total > 0 ? Math.min(1, Math.max(0, window.scrollY / total)) : 0})`;
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    const observer = new ResizeObserver(schedule);
+    observer.observe(document.body);
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('scroll', schedule); window.removeEventListener('resize', schedule); };
   }, []);
-
-  return (
-    <div className="fixed top-0 left-0 right-0 z-[100] h-1.5 bg-[#0B1F16]/90 border-b border-[#2E8B3C]/50 pointer-events-none select-none">
-      {/* Dynamic Progress Fill with Gradient */}
-      <div
-        className="h-full bg-gradient-to-r from-[#2E8B3C] via-[#38E54D] to-[#DAAF37] transition-all duration-75 ease-out origin-left will-change-transform"
-        style={{ width: `${scrollProgress}%` }}
-      />
-    </div>
-  );
+  return <nav className="studio-progress" aria-label="Reading progress and sections"><div className="studio-progress__fill" ref={fillRef} />{sections.map(([id, label]) => <button key={id} onClick={() => onNavigate?.(id)} aria-label={`Go to ${label}`} aria-current={id === activeSection ? 'location' : undefined}><span>{label}</span></button>)}</nav>;
 }
+

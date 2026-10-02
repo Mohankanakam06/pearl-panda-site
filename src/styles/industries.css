@@ -1,0 +1,61 @@
+.industries-section{position:relative;z-index:20;background:var(--color-white);color:var(--color-ink);padding:110px 32px;border-top:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent);border-bottom:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent)}
+.industries-shell{max-width:1280px;margin:auto}
+.industries-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:60px;margin-bottom:58px}
+.industries-heading .section-eyebrow{display:block;font:400 10px var(--font-mono);letter-spacing:.08em;margin-bottom:28px}
+.industries-heading h2{font:400 clamp(54px,7.5vw,108px)/.93 var(--font-display);letter-spacing:-.035em;text-transform:none}
+.industries-heading h2>span{color:var(--color-primary);font-style:italic}
+.industries-heading__aside{max-width:345px}
+.industries-heading__aside p{font-size:14px;line-height:1.9;margin:0 0 8px}
+.industry-tabs{display:flex;flex-wrap:wrap;gap:0 28px;border-bottom:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent);margin-bottom:42px}
+.industry-tab{position:relative;color:var(--color-ink);padding:16px 0 18px;text-align:left;display:flex;align-items:center;gap:8px;cursor:pointer;border-bottom:1px solid transparent;margin-bottom:-1px}
+.industry-tab[aria-selected=true]{border-bottom-color:var(--color-primary);color:var(--color-primary)}
+.industry-tab>span:first-child{display:none}
+.industry-tab strong{font:400 14px/1.6 var(--font-body);text-transform:none}
+.industry-tab__tag{display:none}
+.industry-blueprint{display:grid;grid-template-columns:1.45fr 1fr;background:transparent;color:var(--color-ink);animation:blueprint-enter .45s cubic-bezier(.16,1,.3,1) both}
+.industry-blueprint__main{padding:12px 60px 10px 0}
+.industry-blueprint__title{display:flex;gap:18px;align-items:center}
+.industry-blueprint__icon{color:var(--color-primary);flex-shrink:0}
+.industry-blueprint__title .widget-kicker{margin-bottom:12px;font-size:9px}
+.industry-blueprint__title h3{font:400 clamp(33px,3.5vw,46px)/1.1 var(--font-display);letter-spacing:-.02em;text-transform:none}
+.industry-blueprint__needs{margin-top:30px}
+.industry-blueprint__needs .widget-kicker{margin-bottom:14px;color:var(--color-ink)}
+.industry-blueprint__needs p{font-size:14px;line-height:1.85;color:var(--color-ink)}
+.industry-blueprint__features{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:28px 0 32px;padding:0;list-style:none}
+.industry-blueprint__features li{display:flex;gap:10px;font:400 11px/1.7 var(--font-body)}
+.industry-blueprint__features li>svg{flex-shrink:0;color:var(--color-primary);margin-top:2px;stroke-width:1.2}
+.industry-blueprint__main>.btn-brutal{font:400 14px var(--font-body);text-transform:none;text-align:left;justify-content:space-between;background:transparent;color:var(--color-ink);padding:12px 0;box-shadow:none;border:0;border-bottom:1px solid var(--color-ink)}
+.industry-blueprint__social{border-left:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent);padding:12px 0 10px 50px}
+.industry-blueprint__social>.widget-kicker{font-size:9px}
+.industry-blueprint__social h4{font:400 clamp(40px,4.3vw,60px)/1.02 var(--font-display);margin:24px 0;letter-spacing:-.02em;text-transform:none}
+.industry-blueprint__social h4>span{color:var(--color-primary);font-style:italic}
+.industry-blueprint__social>p{font-size:13px;line-height:1.85}
+.industry-blueprint__cadence{display:grid;gap:9px;border-top:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent);padding-top:20px;margin-top:28px;font:400 11px/1.7 var(--font-body)}
+.industry-blueprint__cadence strong{font:400 9px var(--font-mono);margin-bottom:5px}
+.industry-blueprint__cadence>span::before{content:'—';margin-right:10px;color:var(--color-primary)}
+@keyframes blueprint-enter{from{opacity:.6;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.client-wall{position:relative;z-index:20;padding:54px 0;background:var(--color-cream);color:var(--color-ink);border-top:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent);border-bottom:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent);overflow:hidden}
+.client-wall__heading{display:flex;align-items:flex-end;justify-content:space-between;max-width:1280px;margin:0 auto 34px;padding-inline:32px;gap:25px}
+.client-wall__heading h2{font:400 42px/1.05 var(--font-display);margin:14px 0 0;letter-spacing:-.02em;text-transform:none}
+.client-wall__heading .widget-kicker{font-size:9px}
+.client-wall__controls{display:flex;align-items:center;gap:8px}
+.client-wall__controls>span{font:400 9px var(--font-mono);margin-right:12px;white-space:nowrap}
+.client-wall__controls button{width:36px;height:36px;display:grid;place-items:center}
+.client-wall__controls button:hover{color:var(--color-primary);transform:translateY(-2px)}
+.client-wall__viewport{overflow:hidden;padding:8px 32px 12px;touch-action:pan-y;cursor:grab}
+.client-wall__viewport:active{cursor:grabbing}
+.client-wall__track{display:flex;gap:0;width:max-content}
+.client-wall__tile{display:flex;flex-direction:column;position:relative;width:300px;min-height:210px;padding:8px 34px 8px 0;margin-right:34px;border-right:1px solid color-mix(in srgb,var(--color-ink) 22%,transparent);text-align:left;user-select:none;transition:transform .3s;transform-style:preserve-3d}
+.client-wall__tile:hover,.client-wall__tile:focus-visible{transform:perspective(900px) rotateY(-4deg) translateY(-3px)}
+.client-wall__tile__top{display:flex;justify-content:space-between;align-items:center;font:400 8px var(--font-mono)}
+.client-wall__tile__top>svg{color:var(--color-primary);stroke-width:1.1}
+.client-wall__tile strong{font:400 39px/1 var(--font-display);margin:22px 0;max-width:260px;letter-spacing:-.02em;text-transform:none}
+.client-wall__tile__detail{margin-top:auto;font:400 11px/1.7 var(--font-body)}
+.client-wall__tile__detail>b{display:block;font:400 8px var(--font-mono);margin-bottom:7px}
+.client-wall__tile__arrow{position:absolute;bottom:12px;right:22px;transform:translateX(-5px);opacity:0;transition:transform .25s,opacity .25s;stroke-width:1}
+.client-wall__tile:hover .client-wall__tile__arrow{transform:none;opacity:1}
+.client-wall__note{max-width:1280px;margin:24px auto 0;padding-inline:32px;font:400 10px var(--font-body)}
+@media(min-width:1350px){.client-wall__viewport{padding-left:calc((100vw - 1280px)/2)}}
+@media(max-width:1000px){.industries-heading__aside{max-width:290px}.industry-blueprint__main{padding-right:35px}.industry-blueprint__social{padding-left:35px}.industry-blueprint__features{grid-template-columns:1fr}}
+@media(max-width:700px){.industries-section{padding:75px 24px 85px}.industries-heading{display:block;margin-bottom:28px}.industries-heading h2{font-size:clamp(52px,13vw,80px)}.industries-heading__aside{max-width:400px;margin-top:28px}.industries-heading__aside p{margin:0;font-size:13px;line-height:1.8}.industry-tabs{column-gap:22px;margin-bottom:26px}.industry-tab{padding:11px 0}.industry-tab strong{font-size:12px}.industry-blueprint{grid-template-columns:1fr}.industry-blueprint__main{padding:12px 0 30px}.industry-blueprint__social{padding:30px 0 0;border-left:0;border-top:1px solid color-mix(in srgb,var(--color-ink) 20%,transparent)}.industry-blueprint__social h4{font-size:43px}.industry-blueprint__title{align-items:flex-start;gap:14px}.industry-blueprint__icon{padding-top:7px}.industry-blueprint__title h3{font-size:35px}.industry-blueprint__title .widget-kicker{font-size:8px}.industry-blueprint__main>.btn-brutal{font-size:13px;gap:18px}.client-wall{padding-block:35px}.client-wall__heading{align-items:center;padding-inline:24px;gap:12px}.client-wall__heading h2{font-size:31px}.client-wall__heading .widget-kicker{font-size:8px}.client-wall__controls>span{display:none}.client-wall__controls{gap:2px}.client-wall__controls button{width:29px;height:36px}.client-wall__viewport{padding-inline:24px}.client-wall__tile{width:270px;min-height:210px;padding-right:24px;margin-right:24px}.client-wall__tile strong{font-size:36px}.client-wall__note{font-size:9px;line-height:1.7;padding-inline:24px}}
+@media(prefers-reduced-motion:reduce){.industry-blueprint{animation:none}.client-wall__tile:hover,.client-wall__tile:focus-visible{transform:none}.client-wall__viewport{overflow-x:auto}.client-wall__track{transform:none!important}.client-wall__controls{display:none}}
